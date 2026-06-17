@@ -1,2 +1,2 @@
-web: bin/rails server
-css: bin/rails tailwindcss:watch
+web: bin/dev/run-web
+css: bin/dev/watch-css
