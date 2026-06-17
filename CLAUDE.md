@@ -16,6 +16,8 @@ Self-hosted Rails app: a caregiver maintains an ordered chore list per household
 - `bin/dev/run-web` — web server only
 - Postgres runs via `docker-compose up -d` (see `docker-compose.yml`)
 
+Keep one of these running in the background at all times for smoke/verification testing — don't start and stop it per change. Rails' code reloading picks up controller/model/view changes automatically, so a running server stays current. Only restart it after a `Gemfile` change (`bundle install`) or an initializer/config change, since those are only read at boot.
+
 ## Running tests
 
 Always run tests through `bin/dev/run-tests`, not `bin/rails test` directly:
