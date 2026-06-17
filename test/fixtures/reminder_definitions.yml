@@ -1,0 +1,9 @@
+one:
+  time_of_day: 2000-01-01 08:00:00
+  next_send_at: <%= 1.day.ago %>
+  user: one
+
+two:
+  time_of_day: 2000-01-01 08:15:00
+  next_send_at: <%= 1.day.from_now %>
+  user: two

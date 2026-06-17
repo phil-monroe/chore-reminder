@@ -1,0 +1,9 @@
+one:
+  name: Alex
+  phone_number: "+15555550101"
+  message_template: "{{ task_name }}\n\n{% if link %}{{ link }}{% endif %}"
+
+two:
+  name: Jamie
+  phone_number: "+15555550102"
+  message_template: "{{ task_name }}\n\n{% if link %}{{ link }}{% endif %}"
