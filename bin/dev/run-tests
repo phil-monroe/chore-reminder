@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# Runs the test suite deterministically.
+#
+# System tests (test/system) launch a headless Chrome per Cuprite session.
+# If a previous interrupted run left dev-server or headless Chrome
+# processes behind, they compete for resources with the browser this run
+# needs and can crash it, hanging the suite indefinitely. This script
+# clears that stray state before handing off to `bin/rails test`, which is
+# itself configured (see test/test_helper.rb) to run with a single worker
+# so multiple system test sessions never launch Chrome concurrently.
+#
+# See CLAUDE.md for the full story.
+
+cd "$(dirname "$0")/../.."
+
+pkill -f "puma .*chore_reminder" >/dev/null 2>&1
+pkill -f "Chrome Helper.*--headless" >/dev/null 2>&1
+rm -f tmp/pids/server.pid
+
+# `bin/rails test` alone excludes test/system; default to running
+# everything, including system tests, unless specific paths are given.
+if [ "$#" -eq 0 ]; then
+  exec bin/rails test test/models test/jobs test/services test/controllers test/system
+else
+  exec bin/rails test "$@"
+fi

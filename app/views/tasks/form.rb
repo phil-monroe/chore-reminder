@@ -21,7 +21,10 @@ class Views::Tasks::Form < Views::Base
           class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
       end
 
-      f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+      div(class: "flex items-center gap-3") do
+        f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+        link_to "Cancel", user_tasks_path(@user), class: "text-sm text-gray-600 hover:underline"
+      end
     end
   end
 

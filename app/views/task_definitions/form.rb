@@ -36,11 +36,18 @@ class Views::TaskDefinitions::Form < Views::Base
         f.file_field :images, multiple: true, class: "mt-1 block w-full text-sm"
       end
 
-      f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+      div(class: "flex items-center gap-3") do
+        f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+        link_to "Cancel", cancel_url, class: "text-sm text-gray-600 hover:underline"
+      end
     end
   end
 
   private
+
+  def cancel_url
+    @task_definition.persisted? ? user_task_definition_path(@user, @task_definition) : user_task_definitions_path(@user)
+  end
 
   def day_checkbox(f, value, day_label)
     checked = @task_definition.recurrence_days.include?(value)

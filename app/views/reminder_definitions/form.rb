@@ -15,13 +15,20 @@ class Views::ReminderDefinitions::Form < Views::Base
         f.time_field :time_of_day, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
       end
 
-      f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+      div(class: "flex items-center gap-3") do
+        f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+        link_to "Cancel", cancel_url, class: "text-sm text-gray-600 hover:underline"
+      end
     end
   end
 
   private
 
   def form_url
+    @reminder_definition.persisted? ? user_reminder_definition_path(@user, @reminder_definition) : user_reminder_definitions_path(@user)
+  end
+
+  def cancel_url
     @reminder_definition.persisted? ? user_reminder_definition_path(@user, @reminder_definition) : user_reminder_definitions_path(@user)
   end
 

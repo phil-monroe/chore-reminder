@@ -7,6 +7,20 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{users_path}']", text: /Back to users/
   end
 
+  test "new form's cancel button links to the users list" do
+    get new_user_path
+
+    assert_select "a[href='#{users_path}']", text: "Cancel"
+  end
+
+  test "edit form's cancel button links to the user's show page" do
+    user = users(:one)
+
+    get edit_user_path(user)
+
+    assert_select "a[href='#{user_path(user)}']", text: "Cancel"
+  end
+
   test "send_test_sms shows a friendly error when Twilio is not configured" do
     user = users(:one)
 

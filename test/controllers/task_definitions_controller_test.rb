@@ -17,6 +17,22 @@ class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{user_task_definitions_path(td.user)}']", text: /Back to task definitions/
   end
 
+  test "new form's cancel button links to the task definitions list" do
+    user = users(:one)
+
+    get new_user_task_definition_path(user)
+
+    assert_select "a[href='#{user_task_definitions_path(user)}']", text: "Cancel"
+  end
+
+  test "edit form's cancel button links to the task definition's show page" do
+    td = task_definitions(:one)
+
+    get edit_user_task_definition_path(td.user, td)
+
+    assert_select "a[href='#{user_task_definition_path(td.user, td)}']", text: "Cancel"
+  end
+
   test "generate_now creates today's task when the definition recurs today" do
     td = task_definitions(:one)
     td.update!(recurrence_days: [Date.current.wday])

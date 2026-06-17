@@ -25,13 +25,20 @@ class Views::Users::Form < Views::Base
         f.text_area :message_template, rows: 4, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
       end
 
-      f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+      div(class: "flex items-center gap-3") do
+        f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+        link_to "Cancel", cancel_url, class: "text-sm text-gray-600 hover:underline"
+      end
     end
   end
 
   private
 
   def form_url
+    @user.persisted? ? user_path(@user) : users_path
+  end
+
+  def cancel_url
     @user.persisted? ? user_path(@user) : users_path
   end
 
