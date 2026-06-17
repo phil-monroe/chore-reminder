@@ -3,18 +3,23 @@
 # Runs the test suite deterministically.
 #
 # System tests (test/system) launch a headless Chrome per Cuprite session.
-# If a previous interrupted run left dev-server or headless Chrome
-# processes behind, they compete for resources with the browser this run
-# needs and can crash it, hanging the suite indefinitely. This script
-# clears that stray state before handing off to `bin/rails test`, which is
-# itself configured (see test/test_helper.rb) to run with a single worker
-# so multiple system test sessions never launch Chrome concurrently.
+# A previous interrupted run can leave one behind, competing for resources
+# with the browser this run needs and crashing it, hanging the suite
+# indefinitely. This script clears that stray state before handing off to
+# `bin/rails test`, which is itself configured (see test/test_helper.rb) to
+# run with a single worker so multiple system test sessions never launch
+# Chrome concurrently — that parallel-worker behavior was the actual cause
+# of the hang, not the dev server.
+#
+# Deliberately does NOT kill Puma processes here: that would also kill a
+# `bin/dev/run-web`/`run-all` session you're using to work in the browser
+# alongside the test run. Only headless Chrome (never started by the dev
+# server) and the stale pidfile are cleared.
 #
 # See CLAUDE.md for the full story.
 
 cd "$(dirname "$0")/../.."
 
-pkill -f "puma .*chore_reminder" >/dev/null 2>&1
 pkill -f "Chrome Helper.*--headless" >/dev/null 2>&1
 rm -f tmp/pids/server.pid
 
