@@ -14,5 +14,19 @@
     },
     "outputStyle": "proactive",
     "skipDangerousModePermissionPrompt": true,
-    "enableAllProjectMcpServers": true
+    "enableAllProjectMcpServers": true,
+    "plansDirectory": ".claude/plans",
+    "hooks": {
+      "Stop": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "git add .claude/plans/ 2>/dev/null; git diff --cached --quiet || git commit -m \"chore: save plan\"; exit 0",
+              "statusMessage": "Committing plan..."
+            }
+          ]
+        }
+      ]
+    }
   }
