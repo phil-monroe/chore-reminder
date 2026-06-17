@@ -34,3 +34,36 @@ Use this instead of calling `bin/rails test` directly. System tests launch a rea
 ```
 bin/dev/run-tests test/models   # run a subset, same arguments as `bin/rails test`
 ```
+
+## Running in Docker
+
+The image is published to Docker Hub as [`philmonroe/chore-reminder`](https://hub.docker.com/r/philmonroe/chore-reminder) on every push to `main` (see `.github/workflows/docker-publish.yml`). It's a standalone production image — no Kamal or other deploy tool needed, just `docker run` with environment variables:
+
+```
+docker run -d -p 80:80 \
+  -e SECRET_KEY_BASE=<output of: bin/rails secret> \
+  -e DATABASE_HOST=... -e DATABASE_USERNAME=... -e DATABASE_PASSWORD=... -e DATABASE_NAME=... \
+  -e TWILIO_ACCOUNT_SID=... -e TWILIO_AUTH_TOKEN=... -e TWILIO_FROM_NUMBER=... \
+  -e APP_HOST=... \
+  --name chore-reminder philmonroe/chore-reminder
+```
+
+The Solid Queue worker runs from the same image — start a second container with the command overridden:
+
+```
+docker run -d \
+  -e SECRET_KEY_BASE=... -e DATABASE_HOST=... [...same env as above] \
+  --name chore-reminder-worker philmonroe/chore-reminder bin/jobs
+```
+
+### Environment variables
+
+| var | purpose |
+|---|---|
+| `SECRET_KEY_BASE` | required; generate with `bin/rails secret` |
+| `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` / `DATABASE_NAME` | Postgres connection |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Twilio |
+| `APP_HOST` | host used for absolute URLs in SMS links |
+| `ACTIVE_STORAGE_SERVICE` | `local` or `amazon` |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` / `AWS_BUCKET` | S3, only if `ACTIVE_STORAGE_SERVICE=amazon` |
+| `RAILS_TIME_ZONE` | app time zone for `time_of_day` / `next_send_at` math |

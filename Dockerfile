@@ -1,10 +1,26 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t chore_reminder .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name chore_reminder chore_reminder
-
+# This Dockerfile is designed for production, not development, and is meant
+# to run standalone from nothing but environment variables — no deploy tool
+# (Kamal or otherwise) required:
+#
+#   docker build -t chore-reminder .
+#   docker run -d -p 80:80 \
+#     -e SECRET_KEY_BASE=<output of: bin/rails secret> \
+#     -e DATABASE_HOST=... -e DATABASE_USERNAME=... -e DATABASE_PASSWORD=... -e DATABASE_NAME=... \
+#     -e TWILIO_ACCOUNT_SID=... -e TWILIO_AUTH_TOKEN=... -e TWILIO_FROM_NUMBER=... \
+#     -e APP_HOST=... \
+#     --name chore-reminder philmonroe/chore-reminder
+#
+# The Solid Queue worker runs from the same image — override the command:
+#
+#   docker run -d \
+#     -e SECRET_KEY_BASE=... -e DATABASE_HOST=... [...same env as above] \
+#     --name chore-reminder-worker philmonroe/chore-reminder bin/jobs
+#
+# See README.md for the full list of environment variables.
+#
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version

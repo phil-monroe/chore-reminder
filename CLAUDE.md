@@ -36,3 +36,13 @@ System tests use Capybara/Cuprite, which launches a real headless Chrome process
 `bin/dev/run-tests` additionally kills leftover headless Chrome processes and clears the stale `tmp/pids/server.pid` before each run, in case a previous system test run got killed mid-flight. It deliberately does **not** kill Puma processes by name — that pattern can't distinguish a crashed leftover test server from your actively running `bin/dev/run-web`/`run-all` session, and killing the latter out from under you would be its own bug. Running the dev server and `bin/dev/run-tests` at the same time is safe.
 
 If a test run ever appears to hang with no CPU usage, suspect this exact failure mode — check for a `druby*` socket among the test process's open files (`lsof -p <pid>`) confirming it's blocked on DRb, kill it, and rerun via `bin/dev/run-tests`.
+
+## Docker image
+
+The `Dockerfile` builds a standalone production image — no Kamal or other deploy tool required, just `docker run` with environment variables. The same image runs both the web process (default `CMD`) and the Solid Queue worker (override the command to `bin/jobs`); see the comment at the top of the `Dockerfile` for a runnable example.
+
+`SECRET_KEY_BASE` must be set explicitly (e.g. `bin/rails secret`) since the image ships without `config/master.key` (gitignored, excluded via `.dockerignore`) — there's deliberately no `RAILS_MASTER_KEY`/credentials path for this app.
+
+`config/database.yml`'s `production` section reuses the same `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`/`DATABASE_NAME` vars as development/test (it used to hardcode `chore_reminder_production` and a separate `CHORE_REMINDER_DATABASE_PASSWORD` var — fixed because that silently ignored the documented env vars). The Solid Cache/Queue/Cable databases default to `#{DATABASE_NAME}_cache`/`_queue`/`_cable`, overridable via `CACHE_DATABASE_NAME`/`QUEUE_DATABASE_NAME`/`CABLE_DATABASE_NAME`.
+
+`.github/workflows/docker-publish.yml` builds and pushes the image to Docker Hub as `philmonroe/chore-reminder` (multi-arch: amd64 + arm64) on every push to `main` and on `v*.*.*` tags. Requires `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` repo secrets.

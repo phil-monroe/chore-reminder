@@ -63,18 +63,16 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: chore_reminder_production
-    username: chore_reminder
-    password: <%= ENV["CHORE_REMINDER_DATABASE_PASSWORD"] %>
+    database: <%= ENV.fetch("DATABASE_NAME") { "chore_reminder_production" } %>
   cache:
     <<: *primary_production
-    database: chore_reminder_production_cache
+    database: <%= ENV.fetch("CACHE_DATABASE_NAME") { "#{ENV.fetch("DATABASE_NAME") { "chore_reminder_production" }}_cache" } %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: chore_reminder_production_queue
+    database: <%= ENV.fetch("QUEUE_DATABASE_NAME") { "#{ENV.fetch("DATABASE_NAME") { "chore_reminder_production" }}_queue" } %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: chore_reminder_production_cable
+    database: <%= ENV.fetch("CABLE_DATABASE_NAME") { "#{ENV.fetch("DATABASE_NAME") { "chore_reminder_production" }}_cable" } %>
     migrations_paths: db/cable_migrate
