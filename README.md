@@ -1,6 +1,6 @@
 # Chore Reminder
 
-Self-hosted Rails app: a caregiver maintains an ordered chore list per household member and the app texts the next pending chore on a schedule via Twilio. There's no auth — it's meant to run on a home server for a single household.
+Self-hosted Rails app: a caregiver maintains an ordered chore list per household member and the app texts the next pending chore on a schedule via Twilio. It's meant to run on a home server for a single household, gated by a single shared username/password (HTTP Basic Auth) rather than per-user accounts.
 
 ## Stack
 
@@ -44,6 +44,7 @@ The image is published to Docker Hub as [`philmonroe/chore-reminder`](https://hu
 ```
 docker run -d -p 80:80 \
   -e SECRET_KEY_BASE=<output of: bin/rails secret> \
+  -e BASIC_AUTH_USERNAME=... -e BASIC_AUTH_PASSWORD=... \
   -e DATABASE_HOST=... -e DATABASE_USERNAME=... -e DATABASE_PASSWORD=... -e DATABASE_NAME=... \
   -e TWILIO_ACCOUNT_SID=... -e TWILIO_AUTH_TOKEN=... -e TWILIO_FROM_NUMBER=... \
   -e APP_HOST=... \
@@ -57,6 +58,7 @@ That's it — no separate worker container needed. Background jobs (GoodJob) run
 | var | purpose |
 |---|---|
 | `SECRET_KEY_BASE` | required; generate with `bin/rails secret` |
+| `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` | required; shared credentials for the whole site |
 | `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` / `DATABASE_NAME` | Postgres connection |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Twilio |
 | `APP_HOST` | host used for absolute URLs in SMS links |

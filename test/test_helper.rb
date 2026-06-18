@@ -1,6 +1,31 @@
 ENV["RAILS_ENV"] ||= "test"
+
+# Fixed credentials for the site-wide Basic Auth middleware (config/initializers/basic_auth.rb).
+# dotenv-rails is deliberately not loaded in :test (see CLAUDE.md), so these
+# must be set explicitly rather than relying on a developer's local .env.
+ENV["BASIC_AUTH_USERNAME"] ||= "test"
+ENV["BASIC_AUTH_PASSWORD"] ||= "test"
+
 require_relative "../config/environment"
 require "rails/test_help"
+
+# Every integration test request needs valid Basic Auth credentials now that
+# the whole site is gated. Inject them automatically so individual tests
+# don't each have to set the header themselves. Prepended (not reopened)
+# because Session#process is defined directly on the class itself — reopening
+# it would replace the original method body rather than wrap it, leaving
+# `super` with nothing to call.
+module InjectsBasicAuthHeader
+  def process(method, path, **args)
+    args[:headers] ||= {}
+    args[:headers]["Authorization"] ||=
+      ActionController::HttpAuthentication::Basic.encode_credentials(
+        ENV.fetch("BASIC_AUTH_USERNAME"), ENV.fetch("BASIC_AUTH_PASSWORD")
+      )
+    super
+  end
+end
+ActionDispatch::Integration::Session.prepend(InjectsBasicAuthHeader)
 
 module ActiveSupport
   class TestCase

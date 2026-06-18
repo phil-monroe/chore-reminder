@@ -12,7 +12,8 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "dashboard#index"
 
-  # No auth in this app (see CLAUDE.md) — mounted openly like everything else.
+  # Protected by the site-wide HTTP Basic Auth middleware (see CLAUDE.md)
+  # along with everything else.
   mount GoodJob::Engine => "good_job"
 
   resources :users do

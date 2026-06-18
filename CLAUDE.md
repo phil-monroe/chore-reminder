@@ -1,6 +1,6 @@
 # Chore Reminder
 
-Self-hosted Rails app: a caregiver maintains an ordered chore list per household member and the app texts the next pending chore on a schedule via Twilio. No auth — runs on a home server for a single household.
+Self-hosted Rails app: a caregiver maintains an ordered chore list per household member and the app texts the next pending chore on a schedule via Twilio. Runs on a home server for a single household, gated by a single shared username/password (see "Authentication" below) rather than per-user accounts.
 
 ## Stack
 
@@ -44,6 +44,12 @@ If a test run ever appears to hang with no CPU usage, suspect this exact failure
 ## Linting
 
 Style/lint is [Standard](https://github.com/standardrb/standard) (`standardrb`), not RuboCop directly — `bin/standardrb` (or `bin/standardrb --fix` to autocorrect). It's a curated, mostly-non-configurable RuboCop config, so `.standard.yml` should stay minimal; it currently just enables the `standard-rails` plugin for Rails-aware cops. `standardrb` still delegates to RuboCop's CLI internally, which matters for one thing: its cache reads the env var `RUBOCOP_CACHE_ROOT` by that exact name regardless of which wrapper invokes it (see `.github/workflows/ci.yml`'s lint job) — don't rename it when touching CI caching.
+
+## Authentication
+
+The whole site (including the mounted GoodJob dashboard at `/good_job`) sits behind a single shared HTTP Basic Auth username/password, configured via the required `BASIC_AUTH_USERNAME`/`BASIC_AUTH_PASSWORD` env vars — there are no per-user accounts. This is implemented as Rack middleware (`config/initializers/basic_auth.rb`, `app/middleware/basic_auth_skip_health_check.rb`), not a controller `before_action`, specifically because GoodJob's mounted engine has its own controllers that don't inherit from `ApplicationController` — only middleware sees every request regardless of which Rails app/engine handles it. The middleware skips `/up` (the health check route) so uptime monitors don't need credentials.
+
+`dotenv-rails` doesn't load in `:test` (see below), so `test/test_helper.rb` sets fixed `BASIC_AUTH_USERNAME`/`PASSWORD` values itself before Rails boots, and monkey-patches `ActionDispatch::Integration::Session#process` to attach the matching `Authorization` header to every integration test request automatically — otherwise every existing controller test would need its own auth header. System tests authorize Cuprite's underlying browser directly via `page.driver.browser.basic_authorize` in `test/application_system_test_case.rb`'s `setup`, since Capybara's real-browser driver doesn't go through Rails' test request helpers at all.
 
 ## SMS safety: fictional numbers never get a real send
 
