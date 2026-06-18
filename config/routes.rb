@@ -34,7 +34,7 @@ Rails.application.routes.draw do
     end
 
     member do
-      post :send_test_sms
+      get :new_message
       post :send_message
       post :send_welcome_message
     end

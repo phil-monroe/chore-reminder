@@ -1,22 +1,30 @@
 require "test_helper"
 
 class UsersControllerTest < ActionDispatch::IntegrationTest
-  test "send_message rejects a blank body without contacting Twilio" do
+  test "new_message page links back to the user" do
+    user = users(:one)
+
+    get new_message_user_path(user)
+
+    assert_select "a[href='#{user_path(user)}']", text: /Back to #{user.name}/
+  end
+
+  test "send_message rejects a blank body without contacting Twilio and returns to the message page" do
     user = users(:one)
 
     post send_message_user_path(user), params: { body: "   " }
 
-    assert_redirected_to user_path(user)
+    assert_redirected_to new_message_user_path(user)
     follow_redirect!
     assert_match(/be blank/, response.body)
   end
 
-  test "send_message shows a friendly error when Twilio is not configured" do
+  test "send_message shows a friendly error when Twilio is not configured and returns to the message page" do
     user = users(:one)
 
     post send_message_user_path(user), params: { body: "Don't forget the trash!" }
 
-    assert_redirected_to user_path(user)
+    assert_redirected_to new_message_user_path(user)
     follow_redirect!
     assert_match(/Twilio is not configured/, response.body)
   end
@@ -49,15 +57,5 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     get edit_user_path(user)
 
     assert_select "a[href='#{user_path(user)}']", text: "Cancel"
-  end
-
-  test "send_test_sms shows a friendly error when Twilio is not configured" do
-    user = users(:one)
-
-    post send_test_sms_user_path(user)
-
-    assert_redirected_to user_path(user)
-    follow_redirect!
-    assert_match(/Twilio is not configured/, response.body)
   end
 end

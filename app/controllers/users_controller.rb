@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[show edit update destroy send_test_sms send_message send_welcome_message]
+  before_action :set_user, only: %i[show edit update destroy new_message send_message send_welcome_message]
 
   def index
     @users = User.all
@@ -41,14 +41,13 @@ class UsersController < ApplicationController
     redirect_to users_path, notice: "User deleted."
   end
 
-  def send_test_sms
-    run_sms_command(success_notice: "Test SMS sent to #{@user.phone_number}.", failure_prefix: "Failed to send test SMS") do
-      User::SendMessage.new(user: @user, body: "This is a test message from Chore Reminder.").call
-    end
+  def new_message
+    render Views::Users::NewMessage.new(user: @user)
   end
 
   def send_message
-    run_sms_command(success_notice: "Message sent to #{@user.phone_number}.", failure_prefix: "Failed to send message") do
+    run_sms_command(success_notice: "Message sent to #{@user.phone_number}.", failure_prefix: "Failed to send message",
+      redirect_path: new_message_user_path(@user)) do
       User::SendMessage.new(user: @user, body: params[:body]).call
     end
   end
@@ -69,14 +68,14 @@ class UsersController < ApplicationController
     params.require(:user).permit(:name, :phone_number, :message_template)
   end
 
-  def run_sms_command(success_notice:, failure_prefix:)
+  def run_sms_command(success_notice:, failure_prefix:, redirect_path: user_path(@user))
     yield
-    redirect_to user_path(@user), notice: success_notice
+    redirect_to redirect_path, notice: success_notice
   rescue User::SendMessage::BlankBodyError => e
-    redirect_to user_path(@user), alert: e.message
+    redirect_to redirect_path, alert: e.message
   rescue KeyError => e
-    redirect_to user_path(@user), alert: "Twilio is not configured: #{e.message}"
+    redirect_to redirect_path, alert: "Twilio is not configured: #{e.message}"
   rescue Twilio::REST::RestError => e
-    redirect_to user_path(@user), alert: "#{failure_prefix}: #{e.message}"
+    redirect_to redirect_path, alert: "#{failure_prefix}: #{e.message}"
   end
 end
