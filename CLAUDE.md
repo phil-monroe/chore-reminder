@@ -45,6 +45,10 @@ If a test run ever appears to hang with no CPU usage, suspect this exact failure
 
 Style/lint is [Standard](https://github.com/standardrb/standard) (`standardrb`), not RuboCop directly — `bin/standardrb` (or `bin/standardrb --fix` to autocorrect). It's a curated, mostly-non-configurable RuboCop config, so `.standard.yml` should stay minimal; it currently just enables the `standard-rails` plugin for Rails-aware cops. `standardrb` still delegates to RuboCop's CLI internally, which matters for one thing: its cache reads the env var `RUBOCOP_CACHE_ROOT` by that exact name regardless of which wrapper invokes it (see `.github/workflows/ci.yml`'s lint job) — don't rename it when touching CI caching.
 
+## SMS safety: fictional numbers never get a real send
+
+`Sms::TwilioSender#send` no-ops (just logs) for any `to` number matching `+1555` (`Sms::TwilioSender::FICTIONAL_NUMBER`) — the NANP-reserved-for-fiction area/exchange convention, and what `db/seeds.rb`'s demo data uses. This guard is unconditional: it applies even with real Twilio credentials configured (e.g. in a filled-in `.env`), so seeding or testing against demo users can never actually deliver a text. Only real-looking numbers (like the actual household member set up in seeds) go through to Twilio.
+
 ## Docker image
 
 The `Dockerfile` builds a standalone production image — no Kamal or other deploy tool required, just `docker run` with environment variables. The same image runs both the web process (default `CMD`) and the Solid Queue worker (override the command to `bin/jobs`); see the comment at the top of the `Dockerfile` for a runnable example.

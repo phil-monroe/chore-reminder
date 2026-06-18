@@ -21,9 +21,9 @@ module Sms
       client = FakeClient.new
       sender = TwilioSender.new(client: client)
 
-      sender.send(to: "+15555550199", body: "Hello")
+      sender.send(to: "+12025550199", body: "Hello")
 
-      assert_equal({from: "+15555550100", to: "+15555550199", body: "Hello"}, client.messages.created_with)
+      assert_equal({from: "+15555550100", to: "+12025550199", body: "Hello"}, client.messages.created_with)
     ensure
       ENV.delete("TWILIO_FROM_NUMBER")
     end
@@ -35,7 +35,17 @@ module Sms
       end
       sender = TwilioSender.new(client: client)
 
-      assert_raises(Twilio::REST::RestError) { sender.send(to: "+15555550199", body: "Hello") }
+      assert_raises(Twilio::REST::RestError) { sender.send(to: "+12025550199", body: "Hello") }
+    end
+
+    test "skips sending to a fictional +1555 number without contacting the client" do
+      client = FakeClient.new
+      def client.messages
+        raise "the client should never be reached for a fictional number"
+      end
+      sender = TwilioSender.new(client: client)
+
+      assert_nil sender.send(to: "+15555550199", body: "Hello")
     end
   end
 end
