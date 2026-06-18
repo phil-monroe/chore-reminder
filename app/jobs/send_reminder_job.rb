@@ -24,7 +24,7 @@ class SendReminderJob < ApplicationJob
     return nil if task.task_definition.nil?
 
     Rails.application.routes.url_helpers.user_task_definition_url(
-      task.task_definition.user, task.task_definition, host: ENV.fetch("APP_HOST", "localhost:3000")
+      task.task_definition.user, task.task_definition, host: AppHost.primary
     )
   end
 end

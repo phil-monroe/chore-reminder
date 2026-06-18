@@ -4,9 +4,9 @@
 # depend on a developer's local .env (dotenv-rails is deliberately excluded
 # from :test, see CLAUDE.md).
 #
-# require_relative rather than relying on Zeitwerk autoloading: app/middleware
-# isn't an autoload root by default, and this needs to be loadable at
-# middleware-stack-build time, before the app's normal autoloading is set up.
+# require_relative rather than relying on Zeitwerk autoloading: the main
+# autoloader isn't set up yet when config/initializers run (it happens later,
+# in the finisher), so a bare constant reference here would raise.
 require_relative "../../app/middleware/basic_auth_skip_health_check"
 
 Rails.application.config.middleware.use BasicAuthSkipHealthCheck, "Chore Reminder" do |username, password|

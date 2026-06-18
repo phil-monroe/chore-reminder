@@ -61,6 +61,6 @@ That's it — no separate worker container needed. Background jobs (GoodJob) run
 | `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` | required; shared credentials for the whole site |
 | `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` / `DATABASE_NAME` | Postgres connection |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Twilio |
-| `APP_HOST` | host used for absolute URLs in SMS links |
+| `APP_HOST` | comma-separated host(s) the server accepts requests for; the first is also used for absolute URLs in SMS links |
 | `ACTIVE_STORAGE_SERVICE` | `local` or `amazon` |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` / `AWS_BUCKET` | S3, only if `ACTIVE_STORAGE_SERVICE=amazon` |
