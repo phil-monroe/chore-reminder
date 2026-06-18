@@ -27,4 +27,22 @@ class UsersSystemTest < ApplicationSystemTestCase
 
     assert_no_text "Robin Updated"
   end
+
+  test "sending a freeform message and a welcome message both show a friendly error without Twilio configured" do
+    visit user_path(users(:one))
+
+    fill_in "Type a one-off message to send right now…", with: "Don't forget the trash!"
+    click_on "Send"
+    assert_text "Twilio is not configured"
+
+    click_on "Send welcome message"
+    assert_text "Twilio is not configured"
+  end
+
+  test "sending a blank freeform message is rejected before contacting Twilio" do
+    visit user_path(users(:one))
+
+    click_on "Send"
+    assert_text "Message can't be blank"
+  end
 end

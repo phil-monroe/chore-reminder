@@ -1,5 +1,7 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[show edit update destroy send_test_sms]
+  class_attribute :sms_sender_factory, default: -> { Sms::TwilioSender.new }
+
+  before_action :set_user, only: %i[show edit update destroy send_test_sms send_message send_welcome_message]
 
   def index
     @users = User.all
@@ -42,12 +44,24 @@ class UsersController < ApplicationController
   end
 
   def send_test_sms
-    Sms::TwilioSender.new.send(to: @user.phone_number, body: "This is a test message from Chore Reminder.")
-    redirect_to user_path(@user), notice: "Test SMS sent to #{@user.phone_number}."
-  rescue KeyError => e
-    redirect_to user_path(@user), alert: "Twilio is not configured: #{e.message}"
-  rescue Twilio::REST::RestError => e
-    redirect_to user_path(@user), alert: "Failed to send test SMS: #{e.message}"
+    send_sms(body: "This is a test message from Chore Reminder.",
+      success_notice: "Test SMS sent to #{@user.phone_number}.",
+      failure_prefix: "Failed to send test SMS")
+  end
+
+  def send_message
+    body = params[:body].to_s.strip
+    return redirect_to user_path(@user), alert: "Message can't be blank." if body.blank?
+
+    send_sms(body: body,
+      success_notice: "Message sent to #{@user.phone_number}.",
+      failure_prefix: "Failed to send message")
+  end
+
+  def send_welcome_message
+    send_sms(body: @user.welcome_message_body,
+      success_notice: "Welcome message sent to #{@user.phone_number}.",
+      failure_prefix: "Failed to send welcome message")
   end
 
   private
@@ -58,5 +72,14 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :phone_number, :message_template)
+  end
+
+  def send_sms(body:, success_notice:, failure_prefix:)
+    sms_sender_factory.call.send(to: @user.phone_number, body: body)
+    redirect_to user_path(@user), notice: success_notice
+  rescue KeyError => e
+    redirect_to user_path(@user), alert: "Twilio is not configured: #{e.message}"
+  rescue Twilio::REST::RestError => e
+    redirect_to user_path(@user), alert: "#{failure_prefix}: #{e.message}"
   end
 end

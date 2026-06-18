@@ -35,6 +35,8 @@ Rails.application.routes.draw do
 
     member do
       post :send_test_sms
+      post :send_message
+      post :send_welcome_message
     end
   end
 end

@@ -8,6 +8,10 @@ class User < ApplicationRecord
   validates :message_template, presence: true
   validate :message_template_is_valid_liquid
 
+  def welcome_message_body
+    "Hi #{name}! You're set up on Chore Reminder. You'll get a text here whenever it's time for your next chore."
+  end
+
   private
 
   def message_template_is_valid_liquid

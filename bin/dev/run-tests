@@ -26,7 +26,7 @@ rm -f tmp/pids/server.pid
 # `bin/rails test` alone excludes test/system; default to running
 # everything, including system tests, unless specific paths are given.
 if [ "$#" -eq 0 ]; then
-  exec bin/rails test test/models test/jobs test/services test/controllers test/system
+  exec bin/rails test test/models test/jobs test/services test/controllers test/integration test/system
 else
   exec bin/rails test "$@"
 fi
