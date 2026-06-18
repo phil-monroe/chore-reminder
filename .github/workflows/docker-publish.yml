@@ -36,6 +36,13 @@ jobs:
             type=semver,pattern={{version}}
             type=sha,format=short
 
+      - name: Derive git metadata
+        id: git
+        run: |
+          echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "ref=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          echo "message=$(git log -1 --pretty=%s)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -44,5 +51,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_SHA=${{ steps.git.outputs.sha }}
+            GIT_REF=${{ steps.git.outputs.ref }}
+            GIT_COMMIT_MESSAGE=${{ steps.git.outputs.message }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

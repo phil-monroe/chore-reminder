@@ -30,11 +30,15 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /rails
 
-# Install base packages
-RUN apt-get update -qq && \
+# Install base packages. The apt cache is mounted rather than removed so
+# repeated builds (locally, or across CI runs once the GitHub Actions cache
+# warms up) don't redownload the same .debs every time.
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
-    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
 ENV RAILS_ENV="production" \
@@ -47,15 +51,32 @@ ENV RAILS_ENV="production" \
 FROM base AS build
 
 # Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config
+
+# Distinguish the bundle cache by architecture: this stage builds for
+# multiple platforms (see .github/workflows/docker-publish.yml), and native
+# extensions compiled for arm64 can't be reused on amd64 or vice versa.
+ARG TARGETARCH
 
 # Install application gems
 COPY vendor/* ./vendor/
 COPY Gemfile Gemfile.lock ./
 
-RUN bundle install && \
+# The bundle cache is mounted at a separate path from BUNDLE_PATH, then
+# copied into BUNDLE_PATH proper (a normal, committed layer) once install
+# finishes. Gem downloads and, more importantly, compiled native extensions
+# (nokogiri, pg, commonmarker, ...) persist in the mount across builds even
+# when Gemfile.lock changes — a plain `RUN bundle install` layer would be
+# fully invalidated and rebuilt from scratch by any lockfile change at all,
+# however small. This always benefits local rebuilds; in CI it benefits
+# whichever runs share a BuildKit cache backend/builder.
+RUN --mount=type=cache,id=bundle-cache-${TARGETARCH},target=/usr/local/bundle-cache,sharing=locked \
+    BUNDLE_PATH=/usr/local/bundle-cache bundle install && \
+    mkdir -p "${BUNDLE_PATH}" && \
+    cp -a /usr/local/bundle-cache/. "${BUNDLE_PATH}/" && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
     bundle exec bootsnap precompile -j 1 --gemfile
@@ -75,6 +96,16 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # Final stage for app image
 FROM base
+
+# Build metadata, passed via --build-arg in CI (see
+# .github/workflows/docker-publish.yml). Lets you confirm exactly which
+# commit a running container was built from: `docker exec <container> env`.
+ARG GIT_SHA=""
+ARG GIT_REF=""
+ARG GIT_COMMIT_MESSAGE=""
+ENV GIT_SHA=${GIT_SHA} \
+    GIT_REF=${GIT_REF} \
+    GIT_COMMIT_MESSAGE=${GIT_COMMIT_MESSAGE}
 
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \

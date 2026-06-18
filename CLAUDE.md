@@ -46,3 +46,13 @@ The `Dockerfile` builds a standalone production image — no Kamal or other depl
 `config/database.yml`'s `production` section reuses the same `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`/`DATABASE_NAME` vars as development/test (it used to hardcode `chore_reminder_production` and a separate `CHORE_REMINDER_DATABASE_PASSWORD` var — fixed because that silently ignored the documented env vars). The Solid Cache/Queue/Cable databases default to `#{DATABASE_NAME}_cache`/`_queue`/`_cable`, overridable via `CACHE_DATABASE_NAME`/`QUEUE_DATABASE_NAME`/`CABLE_DATABASE_NAME`.
 
 `.github/workflows/docker-publish.yml` builds and pushes the image to Docker Hub as `philmonroe/chore-reminder` (multi-arch: amd64 + arm64) on every push to `main` and on `v*.*.*` tags. Requires `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` repo secrets.
+
+A running container exposes `GIT_SHA`, `GIT_REF`, and `GIT_COMMIT_MESSAGE` env vars (`docker exec <container> env | grep ^GIT_`) identifying exactly which commit it was built from. The workflow passes these as `--build-arg`s from `github.sha`/`github.ref_name`/the commit subject; they default to empty strings for local `docker build` runs unless you pass them yourself.
+
+### Caching
+
+Both apt package installs and `bundle install` use BuildKit `--mount=type=cache` mounts (not just layer caching) so repeated builds skip redownloading/recompiling unchanged dependencies — this matters most for native-extension gems (`pg`, `nokogiri`, `commonmarker`) that are slow to compile from source. Verified locally: a cold build took ~12 minutes; touching `Gemfile.lock` (forcing `bundle install` to actually re-run, not just hit the layer cache) and rebuilding took ~10 seconds.
+
+The bundle cache is mounted at a path separate from `BUNDLE_PATH`, then copied into `BUNDLE_PATH` (a normal committed layer) once `bundle install` finishes — cache-mounted content is never part of the final image, so gems have to land somewhere real before later stages and the final `COPY --from=build` can see them. The cache is keyed by `$TARGETARCH` since this image builds for both amd64 and arm64, and compiled extensions aren't portable between them.
+
+`cache-from`/`cache-to: type=gha` in the workflow persists regular layer caching across separate CI runs (e.g. an unchanged `Gemfile.lock` skips `bundle install` entirely). Whether BuildKit's mount caches specifically also survive across separate GitHub-hosted runners depends on the `gha` backend/BuildKit version; the mount cache's larger benefit is guaranteed for local rebuilds and within a single multi-platform build.
