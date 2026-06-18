@@ -23,6 +23,8 @@ bin/setup
 bin/dev/run-all   # web server + Tailwind watcher
 ```
 
+Local environment variables (e.g. real Twilio credentials) go in an untracked `.env` file at the project root — `dotenv-rails` loads it automatically in development. A baseline `.env` with the vars below is already set up locally; just fill in the blanks. `.env` is gitignored and only loaded in development, never in test (see `CLAUDE.md` for why).
+
 ## Running the test suite
 
 ```

@@ -78,6 +78,11 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  # Loads environment variables from an untracked .env file [https://github.com/bkeepers/dotenv].
+  # Development only: the test suite must behave the same regardless of a
+  # developer's local secrets, so it shouldn't see this file at all.
+  gem "dotenv-rails"
 end
 
 group :test do

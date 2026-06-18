@@ -18,6 +18,10 @@ Self-hosted Rails app: a caregiver maintains an ordered chore list per household
 
 Keep one of these running in the background at all times for smoke/verification testing — don't start and stop it per change. Rails' code reloading picks up controller/model/view changes automatically, so a running server stays current. Only restart it after a `Gemfile` change (`bundle install`) or an initializer/config change, since those are only read at boot.
 
+### .env
+
+`dotenv-rails` is in the `:development` group only (Gemfile), loading an untracked `.env` at the project root for real local credentials (Twilio, etc). It's deliberately **not** in `:test`: dotenv sets a var present in `.env` with no value (e.g. `TWILIO_ACCOUNT_SID=`) to an empty string, not unset — `ENV.fetch("TWILIO_ACCOUNT_SID")` then returns `""` instead of raising `KeyError`. Several tests assert on the friendly "Twilio is not configured" error that only fires on that `KeyError`; with dotenv loaded in test, those same requests instead hit Twilio's API with empty credentials and get a `Twilio::REST::RestError` (404) — a different failure path, and one that depends on whatever happens to be in a given developer's local `.env`. Test behavior must not depend on local secrets. Found this exact regression by running the suite right after adding dotenv.
+
 ## Running tests
 
 Always run tests through `bin/dev/run-tests`, not `bin/rails test` directly:
