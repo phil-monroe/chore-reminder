@@ -16,6 +16,10 @@ class Views::Users::Show < Views::Base
         span(class: "text-gray-500") { "Phone: " }
         plain @user.phone_number
       }
+      p {
+        span(class: "text-gray-500") { "Time zone: " }
+        plain @user.time_zone
+      }
       p(class: "text-gray-500 text-sm") { "Message template:" }
       pre(class: "bg-gray-50 rounded p-2 text-sm whitespace-pre-wrap") { @user.message_template }
     end

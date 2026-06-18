@@ -2,8 +2,10 @@ one:
   name: Alex
   phone_number: "+15555550101"
   message_template: "{{ task_name }}\n\n{% if link %}{{ link }}{% endif %}"
+  time_zone: "Etc/UTC"
 
 two:
   name: Jamie
   phone_number: "+15555550102"
   message_template: "{{ task_name }}\n\n{% if link %}{{ link }}{% endif %}"
+  time_zone: "Etc/UTC"

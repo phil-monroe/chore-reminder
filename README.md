@@ -62,4 +62,3 @@ That's it — no separate worker container needed. Background jobs (GoodJob) run
 | `APP_HOST` | host used for absolute URLs in SMS links |
 | `ACTIVE_STORAGE_SERVICE` | `local` or `amazon` |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` / `AWS_BUCKET` | S3, only if `ACTIVE_STORAGE_SERVICE=amazon` |
-| `RAILS_TIME_ZONE` | app time zone for `time_of_day` / `next_send_at` math |

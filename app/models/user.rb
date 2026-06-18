@@ -6,7 +6,12 @@ class User < ApplicationRecord
   validates :name, presence: true
   validates :phone_number, presence: true, format: {with: /\A\+[1-9]\d{6,14}\z/}
   validates :message_template, presence: true
+  validates :time_zone, presence: true, inclusion: {in: ActiveSupport::TimeZone::MAPPING.values}
   validate :message_template_is_valid_liquid
+
+  def time_zone_object
+    ActiveSupport::TimeZone[time_zone]
+  end
 
   private
 

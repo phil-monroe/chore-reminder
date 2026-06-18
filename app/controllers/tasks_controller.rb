@@ -1,5 +1,6 @@
 class TasksController < ApplicationController
-  before_action :set_user
+  include ControllerWithUser
+
   before_action :set_task, only: %i[edit update destroy move_higher move_lower toggle_done]
 
   def index
@@ -54,10 +55,6 @@ class TasksController < ApplicationController
   end
 
   private
-
-  def set_user
-    @user = User.find(params[:user_id])
-  end
 
   def set_task
     @task = @user.tasks.find(params[:id])

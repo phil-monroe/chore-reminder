@@ -1,5 +1,6 @@
 class TaskDefinitionsController < ApplicationController
-  before_action :set_user
+  include ControllerWithUser
+
   before_action :set_task_definition, only: %i[show edit update destroy generate_now]
 
   def index
@@ -48,10 +49,6 @@ class TaskDefinitionsController < ApplicationController
   end
 
   private
-
-  def set_user
-    @user = User.find(params[:user_id])
-  end
 
   def set_task_definition
     @task_definition = @user.task_definitions.find(params[:id])

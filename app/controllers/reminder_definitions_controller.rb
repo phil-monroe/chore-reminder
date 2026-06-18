@@ -1,5 +1,6 @@
 class ReminderDefinitionsController < ApplicationController
-  before_action :set_user
+  include ControllerWithUser
+
   before_action :set_reminder_definition, only: %i[show edit update destroy send_now]
 
   def index
@@ -48,10 +49,6 @@ class ReminderDefinitionsController < ApplicationController
   end
 
   private
-
-  def set_user
-    @user = User.find(params[:user_id])
-  end
 
   def set_reminder_definition
     @reminder_definition = @user.reminder_definitions.find(params[:id])

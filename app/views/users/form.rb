@@ -20,6 +20,11 @@ class Views::Users::Form < Views::Base
       end
 
       div do
+        f.label :time_zone, "Time zone", class: "block text-sm font-medium text-gray-700"
+        f.select :time_zone, time_zone_options, {}, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+      end
+
+      div do
         f.label :message_template, class: "block text-sm font-medium text-gray-700"
         p(class: "text-xs text-gray-500 mb-1") { "Liquid template. Available variables: {{ task_name }}, {{ link }} (use {% if link %}...{% endif %} since link may be blank)." }
         f.text_area :message_template, rows: 4, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
@@ -40,6 +45,10 @@ class Views::Users::Form < Views::Base
 
   def cancel_url
     @user.persisted? ? user_path(@user) : users_path
+  end
+
+  def time_zone_options
+    ActiveSupport::TimeZone::MAPPING.values.uniq.sort
   end
 
   def render_errors

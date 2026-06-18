@@ -18,6 +18,17 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:phone_number], "is invalid"
   end
 
+  test "defaults to America/New_York" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}")
+    assert_equal "America/New_York", user.time_zone
+  end
+
+  test "invalid with a time_zone that isn't a recognized identifier" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}", time_zone: "Mars/Olympus_Mons")
+    assert_not user.valid?
+    assert_includes user.errors[:time_zone], "is not included in the list"
+  end
+
   test "invalid with a message_template that is not valid liquid" do
     user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{% if %}")
     assert_not user.valid?

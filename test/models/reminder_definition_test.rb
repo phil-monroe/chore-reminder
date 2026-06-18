@@ -23,6 +23,16 @@ class ReminderDefinitionTest < ActiveSupport::TestCase
     end
   end
 
+  test "next_send_at is computed in the user's time zone, not the app default" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+
+    travel_to Time.zone.local(2026, 6, 17, 11, 0, 0) do # 7:00 AM Eastern
+      rd = ReminderDefinition.create!(user: user, time_of_day: "08:00")
+      assert_equal Time.zone.local(2026, 6, 17, 12, 0, 0), rd.next_send_at # 8:00 AM Eastern == 12:00 UTC
+    end
+  end
+
   test "advance! moves next_send_at forward by one day" do
     rd = reminder_definitions(:one)
     original = rd.next_send_at
