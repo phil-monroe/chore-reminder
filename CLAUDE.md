@@ -5,7 +5,7 @@ Self-hosted Rails app: a caregiver maintains an ordered chore list per household
 ## Stack
 
 - Rails 8, PostgreSQL (configured via `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`/`DATABASE_NAME`, see `config/database.yml`)
-- Solid Queue / Solid Cache / Solid Cable (no Redis dependency)
+- GoodJob (Active Job backend, runs in-process — see "Background jobs" below) / Solid Cache / Solid Cable (no Redis dependency)
 - Phlex-Rails for views, Tailwind CSS (no Node build step)
 - `acts_as_list`, `twilio-ruby`, `commonmarker`, `liquid`
 - Minitest + Capybara/Cuprite for system tests
@@ -16,7 +16,7 @@ Self-hosted Rails app: a caregiver maintains an ordered chore list per household
 - `bin/dev/run-web` — web server only
 - Postgres runs via `docker-compose up -d` (see `docker-compose.yml`)
 
-Keep one of these running in the background at all times for smoke/verification testing — don't start and stop it per change. Rails' code reloading picks up controller/model/view changes automatically, so a running server stays current. Only restart it after a `Gemfile` change (`bundle install`) or an initializer/config change, since those are only read at boot.
+Keep one of these running in the background at all times for smoke/verification testing — don't start and stop it per change. Rails' code reloading picks up controller/model/view changes automatically, so a running server stays current. **Always restart it** after any change to `Gemfile`/`Gemfile.lock` (run `bundle install` first), `.env`, or an initializer/other config file — all of these are only read at boot, so a running server silently keeps stale values otherwise.
 
 ### .env
 
@@ -49,13 +49,23 @@ Style/lint is [Standard](https://github.com/standardrb/standard) (`standardrb`),
 
 `Sms::TwilioSender#send` no-ops (just logs) for any `to` number matching `+1555` (`Sms::TwilioSender::FICTIONAL_NUMBER`) — the NANP-reserved-for-fiction area/exchange convention, and what `db/seeds.rb`'s demo data uses. This guard is unconditional: it applies even with real Twilio credentials configured (e.g. in a filled-in `.env`), so seeding or testing against demo users can never actually deliver a text. Only real-looking numbers (like the actual household member set up in seeds) go through to Twilio.
 
+## Background jobs (GoodJob)
+
+GoodJob is the Active Job backend, configured in `config/initializers/good_job.rb` to run with `execution_mode: :async_server` in development and production — meaning it executes jobs and cron schedules in background threads inside whichever process boots Rails (the web/Puma process), not a separate worker process. There is no `bin/jobs`, no worker entry in `Procfile`, and no worker container in the Dockerfile — that's the point: one process to run, one process to deploy.
+
+`:async_server` (vs plain `:async`) specifically limits this to the actual web server process, so a one-off `rails console`/`runner` invocation doesn't also spin up a redundant cron scheduler. Test is untouched by this — it's deliberately excluded from the `if Rails.env.development? || Rails.env.production?` guard in the initializer, so it keeps GoodJob's own built-in default for test (`execution_mode: :inline`), and `assert_enqueued_with`/etc. swap in the ActiveJob `:test` adapter regardless.
+
+Recurring jobs (`ReminderDispatchJob` every 15 minutes, `RecurringTaskGeneratorJob` daily) are configured as GoodJob cron entries in the same initializer (`config.good_job.cron`), not a separate YAML file. The dashboard is mounted at `/good_job` (`config/routes.rb`) — unauthenticated, like the rest of this app (see top of this file).
+
+`config/puma.rb` doesn't need a GoodJob plugin/hook: GoodJob auto-starts its async executors via its own Railtie once Rails finishes booting, and our Puma config runs single-process (no `workers`/forking) so there's no cluster lifecycle to coordinate.
+
 ## Docker image
 
-The `Dockerfile` builds a standalone production image — no Kamal or other deploy tool required, just `docker run` with environment variables. The same image runs both the web process (default `CMD`) and the Solid Queue worker (override the command to `bin/jobs`); see the comment at the top of the `Dockerfile` for a runnable example.
+The `Dockerfile` builds a standalone production image — no Kamal or other deploy tool required, just `docker run` with environment variables. It's a single process/container: the web server and GoodJob both run there (see "Background jobs" above).
 
 `SECRET_KEY_BASE` must be set explicitly (e.g. `bin/rails secret`) since the image ships without `config/master.key` (gitignored, excluded via `.dockerignore`) — there's deliberately no `RAILS_MASTER_KEY`/credentials path for this app.
 
-`config/database.yml`'s `production` section reuses the same `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`/`DATABASE_NAME` vars as development/test (it used to hardcode `chore_reminder_production` and a separate `CHORE_REMINDER_DATABASE_PASSWORD` var — fixed because that silently ignored the documented env vars). The Solid Cache/Queue/Cable databases default to `#{DATABASE_NAME}_cache`/`_queue`/`_cable`, overridable via `CACHE_DATABASE_NAME`/`QUEUE_DATABASE_NAME`/`CABLE_DATABASE_NAME`.
+`config/database.yml`'s `production` section reuses the same `DATABASE_HOST`/`DATABASE_PORT`/`DATABASE_USERNAME`/`DATABASE_PASSWORD`/`DATABASE_NAME` vars as development/test (it used to hardcode `chore_reminder_production` and a separate `CHORE_REMINDER_DATABASE_PASSWORD` var — fixed because that silently ignored the documented env vars). The Solid Cache/Cable databases (GoodJob just uses the primary database — see above) default to `#{DATABASE_NAME}_cache`/`_cable`, overridable via `CACHE_DATABASE_NAME`/`CABLE_DATABASE_NAME`.
 
 `.github/workflows/docker-publish.yml` builds and pushes the image to Docker Hub as `philmonroe/chore-reminder` (multi-arch: amd64 + arm64) on every push to `main` and on `v*.*.*` tags. Requires `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` repo secrets.
 

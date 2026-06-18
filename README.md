@@ -5,7 +5,7 @@ Self-hosted Rails app: a caregiver maintains an ordered chore list per household
 ## Stack
 
 - Rails 8, PostgreSQL
-- Solid Queue / Solid Cache / Solid Cable (no Redis dependency)
+- GoodJob / Solid Cache / Solid Cable (no Redis dependency) — background jobs run in-process alongside the web server, no separate worker
 - Phlex-Rails for views, Tailwind CSS (no Node build step)
 - `acts_as_list`, `twilio-ruby`, `commonmarker`, `liquid`
 - Minitest + Capybara/Cuprite for system tests
@@ -50,13 +50,7 @@ docker run -d -p 80:80 \
   --name chore-reminder philmonroe/chore-reminder
 ```
 
-The Solid Queue worker runs from the same image — start a second container with the command overridden:
-
-```
-docker run -d \
-  -e SECRET_KEY_BASE=... -e DATABASE_HOST=... [...same env as above] \
-  --name chore-reminder-worker philmonroe/chore-reminder bin/jobs
-```
+That's it — no separate worker container needed. Background jobs (GoodJob) run in-process inside that same container (see `CLAUDE.md`'s "Background jobs" section). The dashboard is at `/good_job` on the running container.
 
 ### Environment variables
 

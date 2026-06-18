@@ -50,8 +50,9 @@ Rails.application.configure do
   config.cache_store = :solid_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = {database: {writing: :queue}}
+  # GoodJob runs in-process (see config/initializers/good_job.rb), so there's
+  # no separate worker connection/process to configure here.
+  config.active_job.queue_adapter = :good_job
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

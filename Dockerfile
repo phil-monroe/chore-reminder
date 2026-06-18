@@ -13,11 +13,9 @@
 #     -e APP_HOST=... \
 #     --name chore-reminder philmonroe/chore-reminder
 #
-# The Solid Queue worker runs from the same image — override the command:
-#
-#   docker run -d \
-#     -e SECRET_KEY_BASE=... -e DATABASE_HOST=... [...same env as above] \
-#     --name chore-reminder-worker philmonroe/chore-reminder bin/jobs
+# That single container is the whole app: background jobs (GoodJob) run
+# in-process alongside the web server (see config/initializers/good_job.rb)
+# rather than needing a second worker container/process.
 #
 # See README.md for the full list of environment variables.
 #
