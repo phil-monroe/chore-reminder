@@ -1,6 +1,4 @@
 class UsersController < ApplicationController
-  class_attribute :sms_sender_factory, default: -> { Sms::TwilioSender.new }
-
   before_action :set_user, only: %i[show edit update destroy send_test_sms send_message send_welcome_message]
 
   def index
@@ -44,24 +42,21 @@ class UsersController < ApplicationController
   end
 
   def send_test_sms
-    send_sms(body: "This is a test message from Chore Reminder.",
-      success_notice: "Test SMS sent to #{@user.phone_number}.",
-      failure_prefix: "Failed to send test SMS")
+    run_sms_command(success_notice: "Test SMS sent to #{@user.phone_number}.", failure_prefix: "Failed to send test SMS") do
+      User::SendMessage.new(user: @user, body: "This is a test message from Chore Reminder.").call
+    end
   end
 
   def send_message
-    body = params[:body].to_s.strip
-    return redirect_to user_path(@user), alert: "Message can't be blank." if body.blank?
-
-    send_sms(body: body,
-      success_notice: "Message sent to #{@user.phone_number}.",
-      failure_prefix: "Failed to send message")
+    run_sms_command(success_notice: "Message sent to #{@user.phone_number}.", failure_prefix: "Failed to send message") do
+      User::SendMessage.new(user: @user, body: params[:body]).call
+    end
   end
 
   def send_welcome_message
-    send_sms(body: @user.welcome_message_body,
-      success_notice: "Welcome message sent to #{@user.phone_number}.",
-      failure_prefix: "Failed to send welcome message")
+    run_sms_command(success_notice: "Welcome message sent to #{@user.phone_number}.", failure_prefix: "Failed to send welcome message") do
+      User::SendWelcomeMessage.new(user: @user).call
+    end
   end
 
   private
@@ -74,9 +69,11 @@ class UsersController < ApplicationController
     params.require(:user).permit(:name, :phone_number, :message_template)
   end
 
-  def send_sms(body:, success_notice:, failure_prefix:)
-    sms_sender_factory.call.send(to: @user.phone_number, body: body)
+  def run_sms_command(success_notice:, failure_prefix:)
+    yield
     redirect_to user_path(@user), notice: success_notice
+  rescue User::SendMessage::BlankBodyError => e
+    redirect_to user_path(@user), alert: e.message
   rescue KeyError => e
     redirect_to user_path(@user), alert: "Twilio is not configured: #{e.message}"
   rescue Twilio::REST::RestError => e

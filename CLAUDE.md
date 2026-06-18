@@ -56,3 +56,14 @@ Both apt package installs and `bundle install` use BuildKit `--mount=type=cache`
 The bundle cache is mounted at a path separate from `BUNDLE_PATH`, then copied into `BUNDLE_PATH` (a normal committed layer) once `bundle install` finishes — cache-mounted content is never part of the final image, so gems have to land somewhere real before later stages and the final `COPY --from=build` can see them. The cache is keyed by `$TARGETARCH` since this image builds for both amd64 and arm64, and compiled extensions aren't portable between them.
 
 `cache-from`/`cache-to: type=gha` in the workflow persists regular layer caching across separate CI runs (e.g. an unchanged `Gemfile.lock` skips `bundle install` entirely). Whether BuildKit's mount caches specifically also survive across separate GitHub-hosted runners depends on the `gha` backend/BuildKit version; the mount cache's larger benefit is guaranteed for local rebuilds and within a single multi-platform build.
+
+## Service classes: prefer the command pattern
+
+When behavior doesn't naturally belong as an AR model method or a controller action — sending a message, composing one operation out of another, anything with real inputs and one obvious entry point — write it as a small command class instead of a model instance method or a class-level "service" with multiple public methods:
+
+- Namespace it under the model it's most associated with: `app/models/user/send_message.rb` defining `User::SendMessage`, autoloaded by Zeitwerk the same way `app/models/user.rb` defines `User`.
+- All inputs come in as keyword args to `initialize`; the only public entry point is a no-arg `call`. Don't add other public methods — if you need to expose an intermediate result, that's a sign the class should split.
+- Compose commands by calling one from another's `call`, passing through whatever was passed to the outer command (see `User::SendWelcomeMessage`, which just builds the canned body and delegates to `User::SendMessage`).
+- Make collaborators (an SMS client, a mailer, anything with an external side effect) an injectable keyword arg so tests can substitute a fake and assert on exactly what it was called with — see `sender:` on `User::SendMessage`.
+- **Don't give an injectable arg a default that has a side effect** (e.g. `sender: Sms::TwilioSender.new`) — Ruby evaluates default arguments eagerly at call time, before the method body runs, so a default like that constructs (and in this app's case, fails on missing Twilio env vars) before any validation in `call` gets a chance to run. Default to `nil` and construct the real collaborator lazily inside `call`: `(@sender || Sms::TwilioSender.new).send(...)`.
+- Controllers/jobs catch the command's own raised errors (e.g. `User::SendMessage::BlankBodyError`) the same way they catch lower-level errors like `Twilio::REST::RestError` — commands raise to signal failure, they don't return a status object.

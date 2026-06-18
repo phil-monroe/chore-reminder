@@ -35,9 +35,4 @@ class UserTest < ActiveSupport::TestCase
     rendered = Liquid::Template.parse(user.message_template).render("task_name" => "Sweep", "link" => nil)
     assert_equal "Sweep\n\n", rendered
   end
-
-  test "welcome_message_body includes the user's name" do
-    user = User.new(name: "Sam")
-    assert_includes user.welcome_message_body, "Sam"
-  end
 end
