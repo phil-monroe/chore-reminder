@@ -11,7 +11,7 @@ class ReminderDispatchJobTest < ActiveJob::TestCase
       ReminderDispatchJob.perform_now
     end
 
-    assert_equal 1, enqueued_jobs.select { |j| j[:job] == SendReminderJob }.size
+    assert_equal 1, enqueued_jobs.count { |j| j[:job] == SendReminderJob }
 
     assert_equal due_original + 1.day, due.reload.next_send_at
     assert_equal not_due_original, not_due.reload.next_send_at

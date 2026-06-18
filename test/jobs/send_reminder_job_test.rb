@@ -9,7 +9,7 @@ class SendReminderJobTest < ActiveJob::TestCase
     end
 
     def send(to:, body:)
-      @calls << { to: to, body: body }
+      @calls << {to: to, body: body}
     end
   end
 
@@ -31,7 +31,7 @@ class SendReminderJobTest < ActiveJob::TestCase
     reminder = reminder_definitions(:one)
     user = reminder.user
     user.tasks.destroy_all
-    task = user.tasks.create!(name: "Feed the pets", task_definition: task_definitions(:one).tap { |td| td.update!(user: user) })
+    user.tasks.create!(name: "Feed the pets", task_definition: task_definitions(:one).tap { |td| td.update!(user: user) })
 
     fake_sender = FakeSender.new
     with_sender(fake_sender) { SendReminderJob.perform_now(reminder.id) }

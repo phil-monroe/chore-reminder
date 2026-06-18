@@ -21,7 +21,7 @@ class TasksController < ApplicationController
     if @task.save
       redirect_to user_tasks_path(@user), notice: "Task created."
     else
-      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_entity
+      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
     end
   end
 
@@ -29,7 +29,7 @@ class TasksController < ApplicationController
     if @task.update(task_params)
       redirect_to user_tasks_path(@user), notice: "Task updated."
     else
-      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_entity
+      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
     end
   end
 

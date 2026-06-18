@@ -12,7 +12,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "send_message rejects a blank body without contacting Twilio and returns to the message page" do
     user = users(:one)
 
-    post send_message_user_path(user), params: { body: "   " }
+    post send_message_user_path(user), params: {body: "   "}
 
     assert_redirected_to new_message_user_path(user)
     follow_redirect!
@@ -22,7 +22,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "send_message shows a friendly error when Twilio is not configured and returns to the message page" do
     user = users(:one)
 
-    post send_message_user_path(user), params: { body: "Don't forget the trash!" }
+    post send_message_user_path(user), params: {body: "Don't forget the trash!"}
 
     assert_redirected_to new_message_user_path(user)
     follow_redirect!

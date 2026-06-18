@@ -2,7 +2,7 @@ class TaskDefinition < ApplicationRecord
   belongs_to :user
   has_many :tasks, dependent: :nullify
   has_many_attached :images do |attachable|
-    attachable.variant :thumb, resize_to_limit: [ 300, 300 ]
+    attachable.variant :thumb, resize_to_limit: [300, 300]
   end
 
   validates :name, presence: true

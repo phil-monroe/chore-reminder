@@ -15,6 +15,6 @@ class ReminderDefinition < ApplicationRecord
     return if time_of_day.blank?
 
     candidate = Time.zone.now.change(hour: time_of_day.hour, min: time_of_day.min)
-    self.next_send_at = candidate > Time.zone.now ? candidate : candidate + 1.day
+    self.next_send_at = (candidate > Time.zone.now) ? candidate : candidate + 1.day
   end
 end

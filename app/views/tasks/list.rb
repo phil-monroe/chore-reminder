@@ -33,7 +33,7 @@ class Views::Tasks::List < Components::Base
         button_to "↓", move_lower_user_task_path(@user, task), method: :patch,
           class: "text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
         link_to "Edit", edit_user_task_path(@user, task), class: "text-xs text-blue-600 hover:underline"
-        button_to "Delete", user_task_path(@user, task), method: :delete, data: { turbo_confirm: "Delete this task?" },
+        button_to "Delete", user_task_path(@user, task), method: :delete, data: {turbo_confirm: "Delete this task?"},
           class: "text-xs text-red-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
       end
     end

@@ -24,7 +24,7 @@ class TaskTest < ActiveSupport::TestCase
   test ".next_for returns the first pending task by position, skipping done tasks" do
     user = users(:one)
     user.tasks.destroy_all
-    done_task = user.tasks.create!(name: "Already done", done: true)
+    user.tasks.create!(name: "Already done", done: true)
     pending_task = user.tasks.create!(name: "Still pending")
 
     assert_equal pending_task, Task.next_for(user)

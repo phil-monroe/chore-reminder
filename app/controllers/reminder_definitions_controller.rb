@@ -25,7 +25,7 @@ class ReminderDefinitionsController < ApplicationController
     if @reminder_definition.save
       redirect_to user_reminder_definition_path(@user, @reminder_definition), notice: "Reminder created."
     else
-      render Views::ReminderDefinitions::Form.new(user: @user, reminder_definition: @reminder_definition), status: :unprocessable_entity
+      render Views::ReminderDefinitions::Form.new(user: @user, reminder_definition: @reminder_definition), status: :unprocessable_content
     end
   end
 
@@ -33,7 +33,7 @@ class ReminderDefinitionsController < ApplicationController
     if @reminder_definition.update(reminder_definition_params)
       redirect_to user_reminder_definition_path(@user, @reminder_definition), notice: "Reminder updated."
     else
-      render Views::ReminderDefinitions::Form.new(user: @user, reminder_definition: @reminder_definition), status: :unprocessable_entity
+      render Views::ReminderDefinitions::Form.new(user: @user, reminder_definition: @reminder_definition), status: :unprocessable_content
     end
   end
 

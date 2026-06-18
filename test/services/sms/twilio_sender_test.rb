@@ -23,7 +23,7 @@ module Sms
 
       sender.send(to: "+15555550199", body: "Hello")
 
-      assert_equal({ from: "+15555550100", to: "+15555550199", body: "Hello" }, client.messages.created_with)
+      assert_equal({from: "+15555550100", to: "+15555550199", body: "Hello"}, client.messages.created_with)
     ensure
       ENV.delete("TWILIO_FROM_NUMBER")
     end

@@ -45,6 +45,6 @@ class Views::Layouts::ApplicationLayout < Views::Base
 
   def flash_classes(type)
     base = "rounded-md px-4 py-2 text-sm"
-    type.to_s == "alert" ? "#{base} bg-red-50 text-red-700 border border-red-200" : "#{base} bg-green-50 text-green-700 border border-green-200"
+    (type.to_s == "alert") ? "#{base} bg-red-50 text-red-700 border border-red-200" : "#{base} bg-green-50 text-green-700 border border-green-200"
   end
 end

@@ -9,7 +9,7 @@ class User::SendMessageTest < ActiveSupport::TestCase
     end
 
     def send(to:, body:)
-      @calls << { to: to, body: body }
+      @calls << {to: to, body: body}
     end
   end
 

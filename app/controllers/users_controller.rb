@@ -24,7 +24,7 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to user_path(@user), notice: "User created."
     else
-      render Views::Users::Form.new(user: @user), status: :unprocessable_entity
+      render Views::Users::Form.new(user: @user), status: :unprocessable_content
     end
   end
 
@@ -32,7 +32,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       redirect_to user_path(@user), notice: "User updated."
     else
-      render Views::Users::Form.new(user: @user), status: :unprocessable_entity
+      render Views::Users::Form.new(user: @user), status: :unprocessable_content
     end
   end
 

@@ -4,7 +4,7 @@ class User < ApplicationRecord
   has_many :reminder_definitions, dependent: :destroy
 
   validates :name, presence: true
-  validates :phone_number, presence: true, format: { with: /\A\+[1-9]\d{6,14}\z/ }
+  validates :phone_number, presence: true, format: {with: /\A\+[1-9]\d{6,14}\z/}
   validates :message_template, presence: true
   validate :message_template_is_valid_liquid
 

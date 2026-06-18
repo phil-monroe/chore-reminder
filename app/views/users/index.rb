@@ -21,7 +21,7 @@ class Views::Users::Index < Views::Base
             end
             div(class: "flex gap-3 text-sm") do
               link_to "Edit", edit_user_path(user), class: "text-blue-600 hover:underline"
-              button_to "Delete", user_path(user), method: :delete, data: { turbo_confirm: "Delete #{user.name}?" },
+              button_to "Delete", user_path(user), method: :delete, data: {turbo_confirm: "Delete #{user.name}?"},
                 class: "text-red-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
             end
           end

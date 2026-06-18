@@ -25,7 +25,7 @@ class TaskDefinitionsController < ApplicationController
     if @task_definition.save
       redirect_to user_task_definition_path(@user, @task_definition), notice: "Task definition created."
     else
-      render Views::TaskDefinitions::Form.new(user: @user, task_definition: @task_definition), status: :unprocessable_entity
+      render Views::TaskDefinitions::Form.new(user: @user, task_definition: @task_definition), status: :unprocessable_content
     end
   end
 
@@ -33,7 +33,7 @@ class TaskDefinitionsController < ApplicationController
     if @task_definition.update(task_definition_params)
       redirect_to user_task_definition_path(@user, @task_definition), notice: "Task definition updated."
     else
-      render Views::TaskDefinitions::Form.new(user: @user, task_definition: @task_definition), status: :unprocessable_entity
+      render Views::TaskDefinitions::Form.new(user: @user, task_definition: @task_definition), status: :unprocessable_content
     end
   end
 

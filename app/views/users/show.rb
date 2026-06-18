@@ -12,7 +12,10 @@ class Views::Users::Show < Views::Base
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 space-y-2 mb-6") do
-      p { span(class: "text-gray-500") { "Phone: " }; plain @user.phone_number }
+      p {
+        span(class: "text-gray-500") { "Phone: " }
+        plain @user.phone_number
+      }
       p(class: "text-gray-500 text-sm") { "Message template:" }
       pre(class: "bg-gray-50 rounded p-2 text-sm whitespace-pre-wrap") { @user.message_template }
     end

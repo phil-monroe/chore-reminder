@@ -13,7 +13,10 @@ class Views::ReminderDefinitions::Show < Views::Base
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6") do
-      p { span(class: "text-gray-500") { "Next send: " }; plain @reminder_definition.next_send_at.strftime("%a %b %-d, %I:%M %p") }
+      p {
+        span(class: "text-gray-500") { "Next send: " }
+        plain @reminder_definition.next_send_at.strftime("%a %b %-d, %I:%M %p")
+      }
     end
 
     button_to "Send now", send_now_user_reminder_definition_path(@user, @reminder_definition), method: :post,

@@ -35,4 +35,6 @@ Task.find_or_create_by!(user: jamie, name: "Pack school lunch")
 ReminderDefinition.find_or_create_by!(user: alex, time_of_day: "08:00")
 ReminderDefinition.find_or_create_by!(user: jamie, time_of_day: "08:15")
 
+# standard:disable Rails/Output
 puts "Seeded #{User.count} users, #{TaskDefinition.count} task definitions, #{Task.count} tasks, #{ReminderDefinition.count} reminder definitions."
+# standard:enable Rails/Output

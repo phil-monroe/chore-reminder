@@ -37,6 +37,10 @@ System tests use Capybara/Cuprite, which launches a real headless Chrome process
 
 If a test run ever appears to hang with no CPU usage, suspect this exact failure mode — check for a `druby*` socket among the test process's open files (`lsof -p <pid>`) confirming it's blocked on DRb, kill it, and rerun via `bin/dev/run-tests`.
 
+## Linting
+
+Style/lint is [Standard](https://github.com/standardrb/standard) (`standardrb`), not RuboCop directly — `bin/standardrb` (or `bin/standardrb --fix` to autocorrect). It's a curated, mostly-non-configurable RuboCop config, so `.standard.yml` should stay minimal; it currently just enables the `standard-rails` plugin for Rails-aware cops. `standardrb` still delegates to RuboCop's CLI internally, which matters for one thing: its cache reads the env var `RUBOCOP_CACHE_ROOT` by that exact name regardless of which wrapper invokes it (see `.github/workflows/ci.yml`'s lint job) — don't rename it when touching CI caching.
+
 ## Docker image
 
 The `Dockerfile` builds a standalone production image — no Kamal or other deploy tool required, just `docker run` with environment variables. The same image runs both the web process (default `CMD`) and the Solid Queue worker (override the command to `bin/jobs`); see the comment at the top of the `Dockerfile` for a runnable example.
