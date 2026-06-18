@@ -6,10 +6,22 @@ class Views::Layouts::ApplicationLayout < Views::Base
       main(class: "max-w-3xl mx-auto px-4 py-6") do
         yield
       end
+      render_build_info
     end
   end
 
   private
+
+  def render_build_info
+    sha = ENV["GIT_SHA"]
+    return if sha.blank?
+
+    div(class: "max-w-3xl mx-auto px-4 py-2 text-right") do
+      span(class: "text-xs text-gray-300", title: ENV["GIT_COMMIT_MESSAGE"]) do
+        plain [sha[0, 7], ENV["GIT_REF"]].compact_blank.join(" @ ")
+      end
+    end
+  end
 
   def render_nav
     nav(class: "bg-white border-b border-gray-200 px-4 py-3") do
