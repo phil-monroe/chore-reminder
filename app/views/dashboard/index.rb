@@ -26,23 +26,13 @@ class Views::Dashboard::Index < Views::Base
   end
 
   def user_card(user)
-    task = Task.next_for(user)
-
     div(class: "bg-white border border-gray-200 rounded-lg p-4 shadow-sm") do
       div(class: "flex items-center justify-between") do
         link_to user.name, user_path(user), class: "font-semibold text-gray-900 hover:underline"
         link_to "All tasks", user_tasks_path(user), class: "text-sm text-blue-600 hover:underline"
       end
 
-      if task
-        div(class: "mt-3 flex items-center justify-between gap-3") do
-          span(class: "text-gray-700") { task.name }
-          button_to "Mark done", toggle_done_user_task_path(user, task), method: :patch,
-            class: "text-sm bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700"
-        end
-      else
-        p(class: "mt-3 text-sm text-gray-500") { "No pending tasks. All done!" }
-      end
+      render Views::Dashboard::NextTask.new(user: user)
     end
   end
 end

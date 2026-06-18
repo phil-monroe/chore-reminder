@@ -11,6 +11,7 @@ class Components::Base < Phlex::HTML
   include Phlex::Rails::Helpers::StylesheetLinkTag
   include Phlex::Rails::Helpers::JavascriptImportmapTags
   include Phlex::Rails::Helpers::TurboIncludeTags
+  include Phlex::Rails::Helpers::TurboFrameTag
   include Phlex::Rails::Helpers::CollectionSelect
   include Phlex::Rails::Helpers::CollectionCheckboxes
   include Phlex::Rails::Helpers::URLFor

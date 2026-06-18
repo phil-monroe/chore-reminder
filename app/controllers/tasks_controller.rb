@@ -51,7 +51,16 @@ class TasksController < ApplicationController
 
   def toggle_done
     @task.update!(done: !@task.done)
-    respond_to_task_list_change
+
+    # The dashboard's "Mark done" button lives inside a turbo frame scoped to
+    # that user's next task, not the "tasks" list rendered by the tasks index
+    # page — re-rendering the tasks list there wouldn't match anything on the
+    # dashboard, so the page would silently fail to update.
+    if turbo_frame_request_id == Views::Dashboard::NextTask.frame_id(@user)
+      render Views::Dashboard::NextTask.new(user: @user)
+    else
+      respond_to_task_list_change
+    end
   end
 
   private
