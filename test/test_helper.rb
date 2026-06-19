@@ -6,6 +6,11 @@ ENV["RAILS_ENV"] ||= "test"
 ENV["BASIC_AUTH_USERNAME"] ||= "test"
 ENV["BASIC_AUTH_PASSWORD"] ||= "test"
 
+# Fixed token for verifying the Twilio inbound SMS webhook's request
+# signature (Integrations::TwilioController). Same dotenv rationale as
+# above: must not depend on whatever happens to be in a developer's .env.
+ENV["TWILIO_AUTH_TOKEN"] ||= "test-twilio-auth-token"
+
 require_relative "../config/environment"
 require "rails/test_help"
 

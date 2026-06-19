@@ -16,6 +16,11 @@ Rails.application.routes.draw do
   # along with everything else.
   mount GoodJob::Engine => "good_job"
 
+  # Excluded from the site-wide Basic Auth middleware (see
+  # app/middleware/basic_auth_skip_health_check.rb) since Twilio can't supply
+  # those credentials; authenticated instead via Twilio's request signature.
+  post "integrations/twilio/sms_inbound_webhook", to: "integrations/twilio#sms_inbound_webhook", as: :twilio_sms_inbound_webhook
+
   resources :users do
     resources :tasks do
       member do
