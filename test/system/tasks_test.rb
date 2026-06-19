@@ -16,6 +16,10 @@ class TasksSystemTest < ApplicationSystemTestCase
     end
 
     assert_equal [second, first], user.tasks.order(:position).to_a
+    # Waits for the reorder's turbo_stream morph to finish settling the DOM
+    # before the next interaction — otherwise that in-flight morph can yank
+    # the row out from under the upcoming "done" click.
+    assert_selector ".bg-white.border:first-child", text: "Second task"
 
     within first(".bg-white.border", text: "Second task") do
       click_on "done"

@@ -6,6 +6,7 @@ class Task < ApplicationRecord
   validates :name, presence: true
 
   scope :pending, -> { where(done: false) }
+  scope :done, -> { where(done: true) }
 
   def self.next_for(user)
     user.tasks.pending.order(:position).first

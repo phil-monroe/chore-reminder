@@ -9,6 +9,32 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{user_path(user)}']", text: /Back to #{user.name}/
   end
 
+  test "index page lists only pending tasks and links to a filtered completed-tasks page" do
+    user = users(:one)
+    user.tasks.destroy_all
+    pending = user.tasks.create!(name: "Pending task")
+    completed = user.tasks.create!(name: "Completed task", done: true)
+
+    get user_tasks_path(user)
+
+    assert_select "#tasks", text: /#{pending.name}/
+    assert_no_match(/#{completed.name}/, response.body)
+    assert_select "a[href='#{user_tasks_path(user, done: true)}']", text: "Show completed tasks"
+  end
+
+  test "index page with done=true lists only completed tasks and links back to pending" do
+    user = users(:one)
+    user.tasks.destroy_all
+    pending = user.tasks.create!(name: "Pending task")
+    completed = user.tasks.create!(name: "Completed task", done: true)
+
+    get user_tasks_path(user, done: true)
+
+    assert_select "#tasks", text: /#{completed.name}/
+    assert_no_match(/#{pending.name}/, response.body)
+    assert_select "a[href='#{user_tasks_path(user)}']", text: "← Back to pending tasks"
+  end
+
   test "new form's cancel button links to the task list" do
     user = users(:one)
 

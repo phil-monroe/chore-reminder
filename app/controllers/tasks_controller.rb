@@ -4,8 +4,9 @@ class TasksController < ApplicationController
   before_action :set_task, only: %i[edit update destroy move_higher move_lower toggle_done]
 
   def index
-    @tasks = @user.tasks.order(:position)
-    render Views::Tasks::Index.new(user: @user, tasks: @tasks)
+    @show_done = params[:done] == "true"
+    @tasks = tasks_for_filter(@show_done)
+    render Views::Tasks::Index.new(user: @user, tasks: @tasks, show_done: @show_done)
   end
 
   def new
@@ -40,9 +41,10 @@ class TasksController < ApplicationController
 
   def destroy
     previous_next_task_id = Task.next_for(@user)&.id
+    show_done = params[:done] == "true"
     @task.destroy
     notify_if_next_task_changed(previous_next_task_id)
-    redirect_to user_tasks_path(@user), notice: "Task deleted."
+    redirect_to user_tasks_path(@user, done: show_done || nil), notice: "Task deleted."
   end
 
   def move_higher
@@ -90,10 +92,15 @@ class TasksController < ApplicationController
   end
 
   def respond_to_task_list_change
-    @tasks = @user.tasks.order(:position)
+    show_done = params[:done] == "true"
+    @tasks = tasks_for_filter(show_done)
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.replace("tasks", Views::Tasks::List.new(user: @user, tasks: @tasks)) }
-      format.html { redirect_to user_tasks_path(@user) }
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("tasks", Views::Tasks::List.new(user: @user, tasks: @tasks, show_done: show_done)) }
+      format.html { redirect_to user_tasks_path(@user, done: show_done || nil) }
     end
+  end
+
+  def tasks_for_filter(show_done)
+    show_done ? @user.tasks.done.order(:position) : @user.tasks.pending.order(:position)
   end
 end
