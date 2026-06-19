@@ -46,6 +46,8 @@ Rails.application.routes.draw do
       get :new_message
       post :send_message
       post :send_welcome_message
+      get :conversation
+      post :send_inbound_message
     end
   end
 end

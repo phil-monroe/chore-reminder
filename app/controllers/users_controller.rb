@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[show edit update destroy new_message send_message send_welcome_message]
+  before_action :set_user, only: %i[show edit update destroy new_message send_message send_welcome_message conversation send_inbound_message]
+  around_action :with_time_zone, only: %i[conversation send_inbound_message]
 
   def index
     @users = User.all
@@ -58,10 +59,33 @@ class UsersController < ApplicationController
     end
   end
 
+  def conversation
+    @messages = @user.messages.order(:created_at)
+    render Views::Users::Conversation.new(user: @user, messages: @messages)
+  end
+
+  # Simulates an inbound text from this user without needing their actual
+  # phone — runs the same DONE/SKIP/NEXT/ADD handling as the real Twilio
+  # webhook (Integrations::TwilioController), just triggered from the
+  # conversation view instead of a signed Twilio request. Unlike the real
+  # webhook (whose reply is delivered by Twilio responding to the request),
+  # deliver_reply: true here actually sends the reply as a real outbound
+  # text, since there's no webhook response to ride along on.
+  def send_inbound_message
+    run_sms_command(success_notice: nil, failure_prefix: "Failed to send reply",
+      redirect_path: conversation_user_path(@user)) do
+      User::HandleInboundSms.new(user: @user, body: params[:body], deliver_reply: true).call
+    end
+  end
+
   private
 
   def set_user
     @user = User.find(params[:id])
+  end
+
+  def with_time_zone(&block)
+    Time.use_zone(@user.time_zone, &block)
   end
 
   def user_params

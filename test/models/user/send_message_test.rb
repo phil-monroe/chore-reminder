@@ -43,4 +43,31 @@ class User::SendMessageTest < ActiveSupport::TestCase
 
     assert_empty fake_sender.calls
   end
+
+  test "logs an outbound message after a successful send" do
+    user = users(:one)
+    fake_sender = FakeSender.new
+
+    assert_difference -> { user.messages.count }, 1 do
+      User::SendMessage.new(user: user, body: "Don't forget the trash!", sender: fake_sender).call
+    end
+
+    message = user.messages.last
+    assert message.outbound?
+    assert_equal "Don't forget the trash!", message.body
+  end
+
+  test "does not log a message when the send raises" do
+    user = users(:one)
+    failing_sender = Object.new
+    def failing_sender.send(**)
+      raise Twilio::REST::RestError.new("boom", Twilio::Response.new(500, "{}"))
+    end
+
+    assert_no_difference -> { user.messages.count } do
+      assert_raises(Twilio::REST::RestError) do
+        User::SendMessage.new(user: user, body: "Hello", sender: failing_sender).call
+      end
+    end
+  end
 end

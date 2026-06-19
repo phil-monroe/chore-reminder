@@ -31,10 +31,11 @@ class Views::Users::Show < Views::Base
         class: "bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-900"
     end
 
-    div(class: "grid grid-cols-1 sm:grid-cols-3 gap-3") do
+    div(class: "grid grid-cols-1 sm:grid-cols-4 gap-3") do
       link_to "Tasks", user_tasks_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
       link_to "Task Definitions", user_task_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
       link_to "Reminders", user_reminder_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
+      link_to "Conversation", conversation_user_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
     end
   end
 end

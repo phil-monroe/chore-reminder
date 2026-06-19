@@ -61,7 +61,7 @@ This endpoint can't go through the site's shared Basic Auth (Twilio has no way t
 
 `test/test_helper.rb` sets a fixed `TWILIO_AUTH_TOKEN` for the same dotenv-related reason it sets the Basic Auth credentials (see "Running locally" above) — and so that controller tests can compute a matching signature for requests they send.
 
-`User::HandleInboundSms.new(..., deliver_reply: false)` (the default) just logs the reply directly rather than sending it through `Sms::TwilioSender` — correct for the real Twilio webhook, where the reply is delivered by Twilio itself responding to the TwiML the controller renders, so actually re-sending it would double-deliver. A web UI form that simulates an inbound reply (not yet built) would pass `deliver_reply: true` instead, to actually send the reply as a real text since it has no webhook response to ride along on.
+`User::HandleInboundSms.new(..., deliver_reply: false)` (the default) just logs the reply directly rather than sending it through `Sms::TwilioSender` — correct for the real Twilio webhook, where the reply is delivered by Twilio itself responding to the TwiML the controller renders, so actually re-sending it would double-deliver. The web UI's "simulate a text reply" form (see "Conversation view" below) has no such webhook response to ride along on, so it passes `deliver_reply: true`, which instead routes the reply through `User::SendMessage` — a real Twilio send and the same logging-after-success guarantee as every other outbound message.
 
 ## Realtime "next task" notifications
 
@@ -72,6 +72,14 @@ The job (really `User::NotifyIfNextTaskChanged`, which it delegates to) re-check
 Deliberately *not* folded into `User::HandleInboundSms`'s own TwiML reply (e.g. DONE's reply is just `Marked "X" done.`, not also `Next up: Y.`) — the async job is the single place that decides whether the next task changed and is worth a text, so a web UI change and a text-message change behave identically instead of needing the comparison written twice.
 
 Known limitation: two list modifications in quick succession (before either's `NotifyNextTaskChangedJob` has run) can each capture the same pre-change "previous next task id," so both jobs independently see a change and both send a text — a harmless but visible duplicate notification. Not coalesced; accepted as an edge case rather than worth the added complexity of debouncing/locking.
+
+## Conversation view
+
+`GET /users/:id/conversation` (`UsersController#conversation`, linked from the user's show page) renders a chat-style view of every `Message` for that user — inbound texts (blue, right-aligned) and outbound texts/reminders (white, left-aligned), oldest first, styled by `Message#outbound?`. The message panel auto-scrolls to the newest message on load (`scroll-to-bottom` Stimulus controller, `app/javascript/controllers/scroll_to_bottom_controller.js`, setting `scrollTop = scrollHeight` on connect). `Message` is a simple log: `user`, `direction` (`enum` of `inbound`/`outbound`), `body`, `created_at` — no association back to the `Task`/`ReminderDefinition` that prompted it.
+
+Every real outbound send is logged from one place, `User::SendMessage#call`, after the underlying `Sms::TwilioSender#send` succeeds (so a raised error never logs a message that wasn't actually sent) — this is why `SendReminderJob` routes through `User::SendMessage` rather than calling `Sms::TwilioSender` directly, the same as `NotifyNextTaskChangedJob`/welcome messages. Inbound messages and their reply are instead logged directly in `User::HandleInboundSms#call` (the inbound body, then the TwiML reply text), since that reply is delivered by Twilio itself rather than via `Sms::TwilioSender`.
+
+The conversation page has a single form (`POST /users/:id/send_inbound_message`) that lets a caregiver simulate a household member's text reply from the web UI — useful when they're physically with that person rather than texting them. Every message a caregiver types here is the *inbound* side of the conversation (what the household member would have sent); `User::HandleInboundSms` produces the *outbound* reply, the same as the real Twilio webhook does, with `deliver_reply: true` (see "Inbound SMS replies" above) so that reply is also actually sent as a real text — not just displayed — the same as a real text-message exchange. There's deliberately no separate "send an outbound message" form here; outbound messages only ever exist as replies to something inbound, mirroring how a real conversation works. (The standalone `new_message`/`send_message` page is unrelated — a one-off message with no expected reply, e.g. an ad-hoc note — and isn't part of this chat view.)
 
 ## Host configuration (`APP_HOST`)
 

@@ -10,21 +10,11 @@ class SendReminderJob < ApplicationJob
     task = Task.next_for(reminder.user)
     return if task.nil?
 
-    body = Liquid::Template.parse(reminder.user.message_template).render(
-      "task_name" => task.name,
-      "link" => link_for(task)
-    )
-
-    sender_factory.call.send(to: reminder.user.phone_number, body: body)
-  end
-
-  private
-
-  def link_for(task)
-    return nil if task.task_definition.nil?
-
-    Rails.application.routes.url_helpers.user_task_definition_url(
-      task.task_definition.user, task.task_definition, host: AppHost.primary
-    )
+    # Routed through User::SendMessage (rather than calling the sender
+    # directly) so this, like every other outbound text, gets logged for the
+    # conversation view (see User::SendMessage).
+    User::SendMessage.new(
+      user: reminder.user, body: task.reminder_body(reminder.user.message_template), sender: sender_factory.call
+    ).call
   end
 end
