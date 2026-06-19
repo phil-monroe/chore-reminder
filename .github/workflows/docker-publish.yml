@@ -57,3 +57,13 @@ jobs:
             GIT_COMMIT_MESSAGE=${{ steps.git.outputs.message }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update Docker Hub description
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: philmonroe/chore-reminder
+          short-description: "Self-hosted Rails app that texts the next pending chore to a household member via Twilio."
+          readme-filepath: ./docs/DOCKER.md

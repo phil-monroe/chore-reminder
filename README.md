@@ -39,28 +39,4 @@ bin/dev/run-tests test/models   # run a subset, same arguments as `bin/rails tes
 
 ## Running in Docker
 
-The image is published to Docker Hub as [`philmonroe/chore-reminder`](https://hub.docker.com/r/philmonroe/chore-reminder) on every push to `main` (see `.github/workflows/docker-publish.yml`). It's a standalone production image — no Kamal or other deploy tool needed, just `docker run` with environment variables:
-
-```
-docker run -d -p 80:80 \
-  -e SECRET_KEY_BASE=<output of: bin/rails secret> \
-  -e BASIC_AUTH_USERNAME=... -e BASIC_AUTH_PASSWORD=... \
-  -e DATABASE_HOST=... -e DATABASE_USERNAME=... -e DATABASE_PASSWORD=... -e DATABASE_NAME=... \
-  -e TWILIO_ACCOUNT_SID=... -e TWILIO_AUTH_TOKEN=... -e TWILIO_FROM_NUMBER=... \
-  -e APP_HOST=... \
-  --name chore-reminder philmonroe/chore-reminder
-```
-
-That's it — no separate worker container needed. Background jobs (GoodJob) run in-process inside that same container (see `CLAUDE.md`'s "Background jobs" section). The dashboard is at `/good_job` on the running container.
-
-### Environment variables
-
-| var | purpose |
-|---|---|
-| `SECRET_KEY_BASE` | required; generate with `bin/rails secret` |
-| `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` | required; shared credentials for the whole site |
-| `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` / `DATABASE_NAME` | Postgres connection |
-| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Twilio |
-| `APP_HOST` | comma-separated host(s) the server accepts requests for; the first is also used for absolute URLs in SMS links |
-| `ACTIVE_STORAGE_SERVICE` | `local` or `amazon` |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` / `AWS_BUCKET` | S3, only if `ACTIVE_STORAGE_SERVICE=amazon` |
+The image is published to Docker Hub as [`philmonroe/chore-reminder`](https://hub.docker.com/r/philmonroe/chore-reminder) on every push to `main` (see `.github/workflows/docker-publish.yml`). It's a standalone production image — no Kamal or other deploy tool needed, just `docker run` or `docker compose` with environment variables. See [`docs/DOCKER.md`](docs/DOCKER.md) for a full walkthrough, including an example Docker Compose configuration and the full list of environment variables.
