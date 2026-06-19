@@ -18,8 +18,10 @@ class TasksController < ApplicationController
   end
 
   def create
+    previous_next_task_id = Task.next_for(@user)&.id
     @task = @user.tasks.new(task_params)
     if @task.save
+      notify_if_next_task_changed(previous_next_task_id)
       redirect_to user_tasks_path(@user), notice: "Task created."
     else
       render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
@@ -27,7 +29,9 @@ class TasksController < ApplicationController
   end
 
   def update
+    previous_next_task_id = Task.next_for(@user)&.id
     if @task.update(task_params)
+      notify_if_next_task_changed(previous_next_task_id)
       redirect_to user_tasks_path(@user), notice: "Task updated."
     else
       render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
@@ -35,22 +39,30 @@ class TasksController < ApplicationController
   end
 
   def destroy
+    previous_next_task_id = Task.next_for(@user)&.id
     @task.destroy
+    notify_if_next_task_changed(previous_next_task_id)
     redirect_to user_tasks_path(@user), notice: "Task deleted."
   end
 
   def move_higher
+    previous_next_task_id = Task.next_for(@user)&.id
     @task.move_higher
+    notify_if_next_task_changed(previous_next_task_id)
     respond_to_task_list_change
   end
 
   def move_lower
+    previous_next_task_id = Task.next_for(@user)&.id
     @task.move_lower
+    notify_if_next_task_changed(previous_next_task_id)
     respond_to_task_list_change
   end
 
   def toggle_done
+    previous_next_task_id = Task.next_for(@user)&.id
     @task.update!(done: !@task.done)
+    notify_if_next_task_changed(previous_next_task_id)
 
     # The dashboard's "Mark done" button lives inside a turbo frame scoped to
     # that user's next task, not the "tasks" list rendered by the tasks index
@@ -64,6 +76,10 @@ class TasksController < ApplicationController
   end
 
   private
+
+  def notify_if_next_task_changed(previous_next_task_id)
+    NotifyNextTaskChangedJob.perform_later(@user.id, previous_next_task_id)
+  end
 
   def set_task
     @task = @user.tasks.find(params[:id])

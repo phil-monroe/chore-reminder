@@ -22,7 +22,10 @@ class TaskDefinition < ApplicationRecord
     return unless recurs_on?(Date.current)
     return if tasks.where(created_at: Date.current.all_day).exists?
 
-    tasks.create!(name: name, user: user, done: false)
+    previous_next_task_id = Task.next_for(user)&.id
+    task = tasks.create!(name: name, user: user, done: false)
+    NotifyNextTaskChangedJob.perform_later(user.id, previous_next_task_id)
+    task
   end
 
   private

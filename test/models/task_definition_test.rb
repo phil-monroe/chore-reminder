@@ -53,4 +53,14 @@ class TaskDefinitionTest < ActiveSupport::TestCase
       td.generate_task_for_today!
     end
   end
+
+  test "generate_task_for_today! enqueues a next-task notification when it creates a task" do
+    td = task_definitions(:one)
+    td.update!(recurrence_days: [Date.current.wday])
+    td.user.tasks.destroy_all
+
+    assert_enqueued_with(job: NotifyNextTaskChangedJob, args: [td.user_id, nil]) do
+      td.generate_task_for_today!
+    end
+  end
 end

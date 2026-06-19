@@ -37,4 +37,19 @@ class TaskTest < ActiveSupport::TestCase
 
     assert_nil Task.next_for(user)
   end
+
+  test "reminder_body renders the message template with the task name and link" do
+    task = tasks(:one)
+
+    body = task.reminder_body("{{ task_name }}\n\n{% if link %}{{ link }}{% endif %}")
+
+    assert_includes body, task.name
+    assert_includes body, "http://"
+  end
+
+  test "link_url is nil for an ad-hoc task with no task_definition" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one))
+
+    assert_nil task.link_url
+  end
 end

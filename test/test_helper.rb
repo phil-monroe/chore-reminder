@@ -34,6 +34,8 @@ ActionDispatch::Integration::Session.prepend(InjectsBasicAuthHeader)
 
 module ActiveSupport
   class TestCase
+    include ActiveJob::TestHelper
+
     # Parallel workers each spin up their own headless Chrome for system
     # tests; running several concurrently crashes the browser process and
     # hangs the suite (waiting forever on DRb). The suite is small enough
