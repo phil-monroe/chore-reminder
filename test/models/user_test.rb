@@ -38,13 +38,13 @@ class UserTest < ActiveSupport::TestCase
   test "default message_template renders task_name and link" do
     user = users(:one)
     rendered = Liquid::Template.parse(user.message_template).render("task_name" => "Sweep", "link" => "http://example.com")
-    assert_equal "Sweep\n\nhttp://example.com", rendered
+    assert_equal "Up next: Sweep\nhttp://example.com", rendered
   end
 
   test "default message_template renders cleanly with no link" do
     user = users(:one)
     rendered = Liquid::Template.parse(user.message_template).render("task_name" => "Sweep", "link" => nil)
-    assert_equal "Sweep\n\n", rendered
+    assert_equal "Up next: Sweep\n", rendered
   end
 
   test "invalid with a username containing uppercase or symbols" do

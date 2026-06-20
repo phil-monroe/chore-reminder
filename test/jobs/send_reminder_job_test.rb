@@ -52,7 +52,7 @@ class SendReminderJobTest < ActiveJob::TestCase
     with_sender(fake_sender) { SendReminderJob.perform_now(reminder.id) }
 
     assert_equal 1, fake_sender.calls.size
-    assert_equal "Water plants", fake_sender.calls.first[:body]
+    assert_equal "Up next: Water plants", fake_sender.calls.first[:body]
   end
 
   test "no-ops when the user has no pending tasks" do

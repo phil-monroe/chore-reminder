@@ -43,6 +43,28 @@ class TaskDefinitionTest < ActiveSupport::TestCase
     end
   end
 
+  test "generate_task_for_today! does not generate a new task while a previous one is still pending, even from an earlier day" do
+    td = task_definitions(:one)
+    td.update!(recurrence_days: [Date.current.wday])
+    td.tasks.destroy_all
+    td.tasks.create!(name: td.name, user: td.user, done: false, created_at: 3.days.ago)
+
+    assert_no_difference -> { td.tasks.count } do
+      td.generate_task_for_today!
+    end
+  end
+
+  test "generate_task_for_today! generates a new task once the previous one is done, even from an earlier day" do
+    td = task_definitions(:one)
+    td.update!(recurrence_days: [Date.current.wday])
+    td.tasks.destroy_all
+    td.tasks.create!(name: td.name, user: td.user, done: true, created_at: 3.days.ago)
+
+    assert_difference -> { td.tasks.count }, 1 do
+      td.generate_task_for_today!
+    end
+  end
+
   test "generate_task_for_today! does nothing on a non-recurring day" do
     td = task_definitions(:one)
     non_today = (Date.current.wday + 1) % 7

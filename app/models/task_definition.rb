@@ -34,9 +34,15 @@ class TaskDefinition < ApplicationRecord
     Commonmarker.to_html(description).html_safe
   end
 
+  # Skips generating if there's already a pending (not-yet-done) task for
+  # this definition, rather than just checking whether one was already
+  # generated today - otherwise an incomplete task from a previous day would
+  # pile up a second, duplicate task once it recurs again, instead of the
+  # original staying the one and only outstanding instance until it's
+  # actually done.
   def generate_task_for_today!
     return unless recurs_on?(Date.current)
-    return if tasks.where(created_at: Date.current.all_day).exists?
+    return if tasks.pending.exists?
 
     previous_next_task_id = Task.next_for(user)&.id
     task = tasks.create!(name: name, user: user, done: false)
