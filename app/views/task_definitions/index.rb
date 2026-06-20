@@ -9,7 +9,8 @@ class Views::TaskDefinitions::Index < Views::Base
 
     div(class: "flex items-center justify-between mb-6") do
       h1(class: "text-2xl font-bold text-gray-900") { "#{@user.name}'s task definitions" }
-      link_to "New task definition", new_user_task_definition_path(@user), class: "bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700"
+      link_to "New task definition", new_user_task_definition_path(@user),
+        class: "bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium text-center shadow-sm hover:bg-blue-700 transition-colors"
     end
 
     if @task_definitions.empty?
@@ -22,10 +23,11 @@ class Views::TaskDefinitions::Index < Views::Base
               link_to td.name, user_task_definition_path(@user, td), class: "font-medium text-gray-900 hover:underline"
               p(class: "text-xs text-gray-500") { recurrence_summary(td) }
             end
-            div(class: "flex gap-3 text-sm") do
-              link_to "Edit", edit_user_task_definition_path(@user, td), class: "text-blue-600 hover:underline"
+            div(class: "flex gap-2 text-sm") do
+              link_to "Edit", edit_user_task_definition_path(@user, td),
+                class: "px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 font-medium shadow-sm hover:bg-gray-50 transition-colors"
               button_to "Delete", user_task_definition_path(@user, td), method: :delete, data: {turbo_confirm: "Delete #{td.name}?"},
-                class: "text-red-600 hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                class: "px-3 py-1.5 rounded-md border border-red-200 text-red-600 font-medium shadow-sm hover:bg-red-50 transition-colors cursor-pointer"
             end
           end
         end

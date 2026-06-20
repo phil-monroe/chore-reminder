@@ -20,7 +20,8 @@ class Task < ApplicationRecord
     return nil if task_definition.nil?
 
     Rails.application.routes.url_helpers.user_task_definition_url(
-      task_definition.user, task_definition, host: AppHost.primary
+      task_definition.user, task_definition,
+      host: AppHost.primary, protocol: Rails.env.production? ? "https" : "http"
     )
   end
 end
