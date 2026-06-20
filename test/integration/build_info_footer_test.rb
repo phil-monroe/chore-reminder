@@ -1,28 +1,31 @@
 require "test_helper"
 
 class BuildInfoFooterTest < ActionDispatch::IntegrationTest
-  test "shows the short sha, ref, and full message as a tooltip when GIT_SHA is set" do
+  test "shows the short sha and ref, revealing the full message in a tappable details element when GIT_SHA is set" do
     with_env(GIT_SHA: "abc1234def5678", GIT_REF: "main", GIT_COMMIT_MESSAGE: "Add build info footer") do
       get root_path
     end
 
-    assert_select "span.text-gray-300[title='Add build info footer']", text: "abc1234 @ main"
+    assert_select "details > summary.text-gray-300", text: "abc1234 @ main"
+    assert_select "details > p.text-gray-400", text: "Add build info footer"
   end
 
-  test "omits the footer entirely when GIT_SHA is not set" do
+  test "shows a placeholder when GIT_SHA is not set (e.g. local dev)" do
     with_env(GIT_SHA: nil) do
       get root_path
     end
 
-    assert_select "span.text-gray-300", count: 0
+    assert_select "span.text-gray-300", text: "dev build"
+    assert_select "details", count: 0
   end
 
-  test "still renders without a ref or message when only GIT_SHA is set" do
+  test "falls back to a plain (non-tappable) span without a ref or message when only GIT_SHA is set" do
     with_env(GIT_SHA: "abc1234def5678", GIT_REF: nil, GIT_COMMIT_MESSAGE: nil) do
       get root_path
     end
 
     assert_select "span.text-gray-300", text: "abc1234"
+    assert_select "details", count: 0
   end
 
   private

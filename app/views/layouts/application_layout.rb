@@ -1,9 +1,9 @@
 class Views::Layouts::ApplicationLayout < Views::Base
   def view_template(&block)
-    div(class: "min-h-screen") do
+    div(class: "min-h-screen flex flex-col") do
       render_nav
       render_flash
-      main(class: "max-w-3xl mx-auto px-4 py-6") do
+      main(class: "max-w-3xl mx-auto px-4 py-6 w-full flex-1") do
         yield
       end
       render_build_info
@@ -14,11 +14,22 @@ class Views::Layouts::ApplicationLayout < Views::Base
 
   def render_build_info
     sha = ENV["GIT_SHA"]
-    return if sha.blank?
 
-    div(class: "max-w-3xl mx-auto px-4 py-2 text-right") do
-      span(class: "text-xs text-gray-300", title: ENV["GIT_COMMIT_MESSAGE"]) do
-        plain [sha[0, 7], ENV["GIT_REF"]].compact_blank.join(" @ ")
+    div(class: "max-w-3xl mx-auto px-4 py-2 text-center") do
+      if sha.blank?
+        span(class: "text-xs text-gray-300 italic") { plain "dev build" }
+      else
+        message = ENV["GIT_COMMIT_MESSAGE"]
+        label = [sha[0, 7], ENV["GIT_REF"]].compact_blank.join(" @ ")
+
+        if message.present?
+          details(class: "inline-block") do
+            summary(class: "text-xs text-gray-300 cursor-pointer") { plain label }
+            p(class: "text-xs text-gray-400 mt-1") { plain message }
+          end
+        else
+          span(class: "text-xs text-gray-300") { plain label }
+        end
       end
     end
   end
