@@ -1,7 +1,8 @@
 # Twilio posts here without our shared Basic Auth credentials (see
-# config/initializers/basic_auth.rb / app/middleware/basic_auth_skip_health_check.rb,
-# which skips this path) and without a Rails CSRF token, so this controller
-# authenticates the request itself via Twilio's request signature instead.
+# config/initializers/basic_auth.rb / app/middleware/basic_auth_admin_gate.rb,
+# which only gates the /admin namespace) and without a Rails CSRF token, so
+# this controller authenticates the request itself via Twilio's request
+# signature instead.
 class Integrations::TwilioController < ApplicationController
   skip_forgery_protection
 

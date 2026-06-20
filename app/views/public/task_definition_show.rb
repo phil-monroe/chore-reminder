@@ -9,6 +9,7 @@ class Views::Public::TaskDefinitionShow < Components::Base
 
   def view_template
     div(class: "min-h-screen flex flex-col") do
+      render_header
       main(class: "max-w-md mx-auto px-4 py-8 w-full flex-1") do
         h1(class: "text-2xl font-bold text-gray-900 mb-4") { @task_definition.name }
 
@@ -22,6 +23,20 @@ class Views::Public::TaskDefinitionShow < Components::Base
   end
 
   private
+
+  # A login link rather than the full admin nav (Dashboard/Users, see
+  # Views::Layouts::ApplicationLayout) - those are dead ends for someone not
+  # yet authenticated. Tapping this hits /admin, which is gated by
+  # BasicAuthAdminGate, prompting the browser's native Basic Auth dialog;
+  # logging in there lands on the admin dashboard.
+  def render_header
+    header(class: "bg-white border-b border-gray-200 px-4 py-3") do
+      div(class: "max-w-md mx-auto flex items-center justify-between") do
+        span(class: "font-semibold text-gray-900") { "Chore Reminder" }
+        link_to "Login", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900"
+      end
+    end
+  end
 
   def images_section
     return unless @task_definition.images.attached?

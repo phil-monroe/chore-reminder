@@ -20,9 +20,9 @@ class User < ApplicationRecord
 
   # Used in URLs (see #to_param) in place of the numeric id when present, so
   # links texted to a household member (e.g. SendReminderJob/Task#link_url)
-  # can look friendlier than "/users/42/...". The format validation above
-  # requires at least one non-digit character, so a purely-numeric param
-  # below is unambiguously an id rather than a username.
+  # can look friendlier than "/42/...". The format validation above requires
+  # at least one non-digit character, so a purely-numeric param below is
+  # unambiguously an id rather than a username.
   def to_param
     username.presence || id.to_s
   end

@@ -13,9 +13,9 @@ class TaskDefinition < ApplicationRecord
 
   # Used in URLs (see #to_param) in place of the numeric id when present, so
   # links texted to a household member (Task#link_url) can look friendlier
-  # than "/users/.../task_definitions/42". Generated once from #name (see
-  # #generate_slug) and left alone afterwards, so a previously texted link
-  # keeps working even if the task definition is later renamed.
+  # than "/.../42". Generated once from #name (see #generate_slug) and left
+  # alone afterwards, so a previously texted link keeps working even if the
+  # task definition is later renamed.
   def to_param
     slug.presence || id.to_s
   end

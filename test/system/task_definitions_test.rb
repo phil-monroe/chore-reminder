@@ -4,7 +4,7 @@ class TaskDefinitionsSystemTest < ApplicationSystemTestCase
   test "creating a task definition with recurrence and viewing rendered markdown" do
     user = users(:one)
 
-    visit user_task_definitions_path(user)
+    visit admin_user_task_definitions_path(user)
     click_on "New task definition"
 
     fill_in "Name", with: "Vacuum the living room"
@@ -21,7 +21,7 @@ class TaskDefinitionsSystemTest < ApplicationSystemTestCase
     td.update!(recurrence_days: [Date.current.wday])
     td.tasks.destroy_all
 
-    visit user_task_definition_path(td.user, td)
+    visit admin_user_task_definition_path(td.user, td)
     click_on "Generate today's task now"
 
     assert_equal 1, td.tasks.count

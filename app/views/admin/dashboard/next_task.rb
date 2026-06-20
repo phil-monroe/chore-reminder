@@ -1,4 +1,4 @@
-class Views::Dashboard::NextTask < Components::Base
+class Views::Admin::Dashboard::NextTask < Components::Base
   def self.frame_id(user) = "user_#{user.id}_next_task"
 
   def initialize(user:)
@@ -12,7 +12,7 @@ class Views::Dashboard::NextTask < Components::Base
       if task
         div(class: "mt-3 flex items-center justify-between gap-3") do
           span(class: "text-gray-700") { task.name }
-          button_to "Mark done", toggle_done_user_task_path(@user, task), method: :patch,
+          button_to "Mark done", toggle_done_admin_user_task_path(@user, task), method: :patch,
             class: "text-sm bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700"
         end
       else

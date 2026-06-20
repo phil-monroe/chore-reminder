@@ -3,7 +3,7 @@ require "test_helper"
 class BuildInfoFooterTest < ActionDispatch::IntegrationTest
   test "shows the short sha and ref, revealing the full message in a tappable details element when GIT_SHA is set" do
     with_env(GIT_SHA: "abc1234def5678", GIT_REF: "main", GIT_COMMIT_MESSAGE: "Add build info footer") do
-      get root_path
+      get admin_root_path
     end
 
     assert_select "details > summary.text-gray-300", text: "abc1234 @ main"
@@ -12,7 +12,7 @@ class BuildInfoFooterTest < ActionDispatch::IntegrationTest
 
   test "shows a placeholder when GIT_SHA is not set (e.g. local dev)" do
     with_env(GIT_SHA: nil) do
-      get root_path
+      get admin_root_path
     end
 
     assert_select "span.text-gray-300", text: "dev build"
@@ -21,7 +21,7 @@ class BuildInfoFooterTest < ActionDispatch::IntegrationTest
 
   test "falls back to a plain (non-tappable) span without a ref or message when only GIT_SHA is set" do
     with_env(GIT_SHA: "abc1234def5678", GIT_REF: nil, GIT_COMMIT_MESSAGE: nil) do
-      get root_path
+      get admin_root_path
     end
 
     assert_select "span.text-gray-300", text: "abc1234"

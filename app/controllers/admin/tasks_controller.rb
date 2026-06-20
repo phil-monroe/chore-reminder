@@ -1,4 +1,4 @@
-class TasksController < ApplicationController
+class Admin::TasksController < ApplicationController
   include ControllerWithUser
 
   before_action :set_task, only: %i[edit update destroy move_higher move_lower toggle_done]
@@ -6,16 +6,16 @@ class TasksController < ApplicationController
   def index
     @show_done = params[:done] == "true"
     @tasks = tasks_for_filter(@show_done)
-    render Views::Tasks::Index.new(user: @user, tasks: @tasks, show_done: @show_done)
+    render Views::Admin::Tasks::Index.new(user: @user, tasks: @tasks, show_done: @show_done)
   end
 
   def new
     @task = @user.tasks.new
-    render Views::Tasks::Form.new(user: @user, task: @task)
+    render Views::Admin::Tasks::Form.new(user: @user, task: @task)
   end
 
   def edit
-    render Views::Tasks::Form.new(user: @user, task: @task)
+    render Views::Admin::Tasks::Form.new(user: @user, task: @task)
   end
 
   def create
@@ -23,9 +23,9 @@ class TasksController < ApplicationController
     @task = @user.tasks.new(task_params)
     if @task.save
       notify_if_next_task_changed(previous_next_task_id)
-      redirect_to user_tasks_path(@user), notice: "Task created."
+      redirect_to admin_user_tasks_path(@user), notice: "Task created."
     else
-      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
+      render Views::Admin::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
     end
   end
 
@@ -33,9 +33,9 @@ class TasksController < ApplicationController
     previous_next_task_id = Task.next_for(@user)&.id
     if @task.update(task_params)
       notify_if_next_task_changed(previous_next_task_id)
-      redirect_to user_tasks_path(@user), notice: "Task updated."
+      redirect_to admin_user_tasks_path(@user), notice: "Task updated."
     else
-      render Views::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
+      render Views::Admin::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
     end
   end
 
@@ -44,7 +44,7 @@ class TasksController < ApplicationController
     show_done = params[:done] == "true"
     @task.destroy
     notify_if_next_task_changed(previous_next_task_id)
-    redirect_to user_tasks_path(@user, done: show_done || nil), notice: "Task deleted."
+    redirect_to admin_user_tasks_path(@user, done: show_done || nil), notice: "Task deleted."
   end
 
   def move_higher
@@ -70,8 +70,8 @@ class TasksController < ApplicationController
     # that user's next task, not the "tasks" list rendered by the tasks index
     # page — re-rendering the tasks list there wouldn't match anything on the
     # dashboard, so the page would silently fail to update.
-    if turbo_frame_request_id == Views::Dashboard::NextTask.frame_id(@user)
-      render Views::Dashboard::NextTask.new(user: @user)
+    if turbo_frame_request_id == Views::Admin::Dashboard::NextTask.frame_id(@user)
+      render Views::Admin::Dashboard::NextTask.new(user: @user)
     else
       respond_to_task_list_change
     end
@@ -95,8 +95,8 @@ class TasksController < ApplicationController
     show_done = params[:done] == "true"
     @tasks = tasks_for_filter(show_done)
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.replace("tasks", Views::Tasks::List.new(user: @user, tasks: @tasks, show_done: show_done)) }
-      format.html { redirect_to user_tasks_path(@user, done: show_done || nil) }
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("tasks", Views::Admin::Tasks::List.new(user: @user, tasks: @tasks, show_done: show_done)) }
+      format.html { redirect_to admin_user_tasks_path(@user, done: show_done || nil) }
     end
   end
 

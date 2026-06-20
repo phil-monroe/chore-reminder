@@ -1,4 +1,4 @@
-class Views::Tasks::Form < Views::Base
+class Views::Admin::Tasks::Form < Views::Base
   def initialize(user:, task:)
     @user = user
     @task = task
@@ -23,7 +23,7 @@ class Views::Tasks::Form < Views::Base
 
       div(class: "flex items-center gap-3") do
         f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
-        link_to "Cancel", user_tasks_path(@user), class: "text-sm text-gray-600 hover:underline"
+        link_to "Cancel", admin_user_tasks_path(@user), class: "text-sm text-gray-600 hover:underline"
       end
     end
   end
@@ -31,7 +31,7 @@ class Views::Tasks::Form < Views::Base
   private
 
   def form_url
-    @task.persisted? ? user_task_path(@user, @task) : user_tasks_path(@user)
+    @task.persisted? ? admin_user_task_path(@user, @task) : admin_user_tasks_path(@user)
   end
 
   def render_errors

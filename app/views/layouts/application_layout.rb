@@ -37,9 +37,9 @@ class Views::Layouts::ApplicationLayout < Views::Base
   def render_nav
     nav(class: "bg-white border-b border-gray-200 px-4 py-3") do
       div(class: "max-w-3xl mx-auto flex items-center gap-4") do
-        link_to "Chore Reminder", root_path, class: "font-semibold text-gray-900"
-        link_to "Dashboard", root_path, class: "text-sm text-gray-600 hover:text-gray-900"
-        link_to "Users", users_path, class: "text-sm text-gray-600 hover:text-gray-900"
+        link_to "Chore Reminder", admin_root_path, class: "font-semibold text-gray-900"
+        link_to "Dashboard", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900"
+        link_to "Users", admin_users_path, class: "text-sm text-gray-600 hover:text-gray-900"
       end
     end
   end

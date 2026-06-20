@@ -1,15 +1,19 @@
-class Views::TaskDefinitions::Show < Views::Base
+class Views::Admin::TaskDefinitions::Show < Views::Base
   def initialize(user:, task_definition:)
     @user = user
     @task_definition = task_definition
   end
 
   def page_content
-    link_to "← Back to task definitions", user_task_definitions_path(@user), class: "text-sm text-blue-600 hover:underline block mb-4"
+    link_to "← Back to task definitions", admin_user_task_definitions_path(@user), class: "text-sm text-blue-600 hover:underline block mb-4"
 
     div(class: "flex items-center justify-between mb-6") do
       h1(class: "text-2xl font-bold text-gray-900") { @task_definition.name }
-      link_to "Edit", edit_user_task_definition_path(@user, @task_definition), class: "text-sm text-blue-600 hover:underline"
+      div(class: "flex gap-3") do
+        link_to "View public page", public_task_definition_path(username: @user.to_param, task_definition_slug: @task_definition.to_param),
+          target: "_blank", rel: "noopener", class: "text-sm text-blue-600 hover:underline"
+        link_to "Edit", edit_admin_user_task_definition_path(@user, @task_definition), class: "text-sm text-blue-600 hover:underline"
+      end
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6 prose prose-sm max-w-none") do
@@ -19,7 +23,7 @@ class Views::TaskDefinitions::Show < Views::Base
     images_section
 
     div(class: "flex gap-3") do
-      button_to "Generate today's task now", generate_now_user_task_definition_path(@user, @task_definition), method: :post,
+      button_to "Generate today's task now", generate_now_admin_user_task_definition_path(@user, @task_definition), method: :post,
         class: "bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-900"
     end
   end

@@ -1,4 +1,4 @@
-class Views::Dashboard::Index < Views::Base
+class Views::Admin::Dashboard::Index < Views::Base
   def initialize(users:)
     @users = users
   end
@@ -20,7 +20,7 @@ class Views::Dashboard::Index < Views::Base
   def empty_state
     div(class: "text-gray-500 text-sm") do
       plain "No users yet. "
-      link_to "Add one", new_user_path, class: "text-blue-600 hover:underline"
+      link_to "Add one", new_admin_user_path, class: "text-blue-600 hover:underline"
       plain "."
     end
   end
@@ -28,11 +28,11 @@ class Views::Dashboard::Index < Views::Base
   def user_card(user)
     div(class: "bg-white border border-gray-200 rounded-lg p-4 shadow-sm") do
       div(class: "flex items-center justify-between") do
-        link_to user.name, user_path(user), class: "font-semibold text-gray-900 hover:underline"
-        link_to "All tasks", user_tasks_path(user), class: "text-sm text-blue-600 hover:underline"
+        link_to user.name, admin_user_path(user), class: "font-semibold text-gray-900 hover:underline"
+        link_to "All tasks", admin_user_tasks_path(user), class: "text-sm text-blue-600 hover:underline"
       end
 
-      render Views::Dashboard::NextTask.new(user: user)
+      render Views::Admin::Dashboard::NextTask.new(user: user)
     end
   end
 end

@@ -1,9 +1,9 @@
-# Unauthenticated counterpart to TaskDefinitionsController#show - the page
-# linked from reminder texts (see Task#link_url), reached by household
+# Unauthenticated counterpart to Admin::TaskDefinitionsController#show - the
+# page linked from reminder texts (see Task#link_url), reached by household
 # members who have no Basic Auth credentials (see config/routes.rb and
-# app/middleware/basic_auth_skip_health_check.rb). Deliberately doesn't
-# expose anything beyond what's already texted to them: no edit/generate
-# controls, no other users' or task definitions' data.
+# app/middleware/basic_auth_admin_gate.rb, which only gates /admin).
+# Deliberately doesn't expose anything beyond what's already texted to
+# them: no edit/generate controls, no other users' or task definitions' data.
 class Public::TaskDefinitionsController < ApplicationController
   def show
     user = User.find_by_param!(params[:username])

@@ -1,14 +1,14 @@
-class Views::Users::Show < Views::Base
+class Views::Admin::Users::Show < Views::Base
   def initialize(user:)
     @user = user
   end
 
   def page_content
-    link_to "← Back to users", users_path, class: "text-sm text-blue-600 hover:underline block mb-4"
+    link_to "← Back to users", admin_users_path, class: "text-sm text-blue-600 hover:underline block mb-4"
 
     div(class: "flex items-center justify-between mb-6") do
       h1(class: "text-2xl font-bold text-gray-900") { @user.name }
-      link_to "Edit", edit_user_path(@user), class: "text-sm text-blue-600 hover:underline"
+      link_to "Edit", edit_admin_user_path(@user), class: "text-sm text-blue-600 hover:underline"
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 space-y-2 mb-6") do
@@ -31,17 +31,17 @@ class Views::Users::Show < Views::Base
     end
 
     div(class: "flex gap-3 mb-6") do
-      link_to "Send message", new_message_user_path(@user),
+      link_to "Send message", new_message_admin_user_path(@user),
         class: "bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-900"
-      button_to "Send welcome message", send_welcome_message_user_path(@user), method: :post,
+      button_to "Send welcome message", send_welcome_message_admin_user_path(@user), method: :post,
         class: "bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-900"
     end
 
     div(class: "grid grid-cols-1 sm:grid-cols-4 gap-3") do
-      link_to "Tasks", user_tasks_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
-      link_to "Task Definitions", user_task_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
-      link_to "Reminders", user_reminder_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
-      link_to "Conversation", conversation_user_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
+      link_to "Tasks", admin_user_tasks_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
+      link_to "Task Definitions", admin_user_task_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
+      link_to "Reminders", admin_user_reminder_definitions_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
+      link_to "Conversation", conversation_admin_user_path(@user), class: "block bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50"
     end
   end
 end

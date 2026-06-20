@@ -1,4 +1,4 @@
-class Views::TaskDefinitions::Form < Views::Base
+class Views::Admin::TaskDefinitions::Form < Views::Base
   DAYS = [[0, "Sunday"], [1, "Monday"], [2, "Tuesday"], [3, "Wednesday"], [4, "Thursday"], [5, "Friday"], [6, "Saturday"]].freeze
 
   def initialize(user:, task_definition:)
@@ -46,7 +46,7 @@ class Views::TaskDefinitions::Form < Views::Base
   private
 
   def cancel_url
-    @task_definition.persisted? ? user_task_definition_path(@user, @task_definition) : user_task_definitions_path(@user)
+    @task_definition.persisted? ? admin_user_task_definition_path(@user, @task_definition) : admin_user_task_definitions_path(@user)
   end
 
   def day_checkbox(f, value, day_label)
@@ -58,7 +58,7 @@ class Views::TaskDefinitions::Form < Views::Base
   end
 
   def form_url
-    @task_definition.persisted? ? user_task_definition_path(@user, @task_definition) : user_task_definitions_path(@user)
+    @task_definition.persisted? ? admin_user_task_definition_path(@user, @task_definition) : admin_user_task_definitions_path(@user)
   end
 
   def render_errors

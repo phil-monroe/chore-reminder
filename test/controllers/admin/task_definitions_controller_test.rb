@@ -1,29 +1,38 @@
 require "test_helper"
 
-class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
+class Admin::TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
   test "index page links back to the user" do
     user = users(:one)
 
-    get user_task_definitions_path(user)
+    get admin_user_task_definitions_path(user)
 
-    assert_select "a[href='#{user_path(user)}']", text: /Back to #{user.name}/
+    assert_select "a[href='#{admin_user_path(user)}']", text: /Back to #{user.name}/
   end
 
   test "show page links back to the task definitions list" do
     td = task_definitions(:one)
 
-    get user_task_definition_path(td.user, td)
+    get admin_user_task_definition_path(td.user, td)
 
-    assert_select "a[href='#{user_task_definitions_path(td.user)}']", text: /Back to task definitions/
+    assert_select "a[href='#{admin_user_task_definitions_path(td.user)}']", text: /Back to task definitions/
+  end
+
+  test "show page links to the public page for the task definition" do
+    td = task_definitions(:one)
+
+    get admin_user_task_definition_path(td.user, td)
+
+    assert_select "a[href='#{public_task_definition_path(username: td.user.to_param, task_definition_slug: td.to_param)}']",
+      text: "View public page"
   end
 
   test "a task definition with a slug is reachable at /task_definitions/:slug instead of /:id" do
     td = task_definitions(:one)
     td.update!(slug: "feed-the-pets")
 
-    assert_equal "/users/#{td.user.to_param}/task_definitions/feed-the-pets", user_task_definition_path(td.user, td)
+    assert_equal "/admin/users/#{td.user.to_param}/task_definitions/feed-the-pets", admin_user_task_definition_path(td.user, td)
 
-    get user_task_definition_path(td.user, td)
+    get admin_user_task_definition_path(td.user, td)
 
     assert_response :success
   end
@@ -31,17 +40,17 @@ class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
   test "new form's cancel button links to the task definitions list" do
     user = users(:one)
 
-    get new_user_task_definition_path(user)
+    get new_admin_user_task_definition_path(user)
 
-    assert_select "a[href='#{user_task_definitions_path(user)}']", text: "Cancel"
+    assert_select "a[href='#{admin_user_task_definitions_path(user)}']", text: "Cancel"
   end
 
   test "edit form's cancel button links to the task definition's show page" do
     td = task_definitions(:one)
 
-    get edit_user_task_definition_path(td.user, td)
+    get edit_admin_user_task_definition_path(td.user, td)
 
-    assert_select "a[href='#{user_task_definition_path(td.user, td)}']", text: "Cancel"
+    assert_select "a[href='#{admin_user_task_definition_path(td.user, td)}']", text: "Cancel"
   end
 
   test "generate_now creates today's task when the definition recurs today" do
@@ -50,10 +59,10 @@ class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
     td.tasks.destroy_all
 
     assert_difference -> { td.tasks.count }, 1 do
-      post generate_now_user_task_definition_path(td.user, td)
+      post generate_now_admin_user_task_definition_path(td.user, td)
     end
 
-    assert_redirected_to user_task_definition_path(td.user, td)
+    assert_redirected_to admin_user_task_definition_path(td.user, td)
   end
 
   test "generate_now is a no-op when the definition does not recur today" do
@@ -62,7 +71,7 @@ class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
     td.tasks.destroy_all
 
     assert_no_difference -> { td.tasks.count } do
-      post generate_now_user_task_definition_path(td.user, td)
+      post generate_now_admin_user_task_definition_path(td.user, td)
     end
   end
 end

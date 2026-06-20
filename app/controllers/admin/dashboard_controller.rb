@@ -1,6 +1,6 @@
-class DashboardController < ApplicationController
+class Admin::DashboardController < ApplicationController
   def index
     @users = User.all.includes(:tasks)
-    render Views::Dashboard::Index.new(users: @users)
+    render Views::Admin::Dashboard::Index.new(users: @users)
   end
 end

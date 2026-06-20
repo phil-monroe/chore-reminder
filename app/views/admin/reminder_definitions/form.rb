@@ -1,4 +1,4 @@
-class Views::ReminderDefinitions::Form < Views::Base
+class Views::Admin::ReminderDefinitions::Form < Views::Base
   def initialize(user:, reminder_definition:)
     @user = user
     @reminder_definition = reminder_definition
@@ -25,11 +25,11 @@ class Views::ReminderDefinitions::Form < Views::Base
   private
 
   def form_url
-    @reminder_definition.persisted? ? user_reminder_definition_path(@user, @reminder_definition) : user_reminder_definitions_path(@user)
+    @reminder_definition.persisted? ? admin_user_reminder_definition_path(@user, @reminder_definition) : admin_user_reminder_definitions_path(@user)
   end
 
   def cancel_url
-    @reminder_definition.persisted? ? user_reminder_definition_path(@user, @reminder_definition) : user_reminder_definitions_path(@user)
+    @reminder_definition.persisted? ? admin_user_reminder_definition_path(@user, @reminder_definition) : admin_user_reminder_definitions_path(@user)
   end
 
   def render_errors

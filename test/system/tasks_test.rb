@@ -7,7 +7,7 @@ class TasksSystemTest < ApplicationSystemTestCase
     first = user.tasks.create!(name: "First task")
     second = user.tasks.create!(name: "Second task")
 
-    visit user_tasks_path(user)
+    visit admin_user_tasks_path(user)
     assert_text "First task"
     assert_text "Second task"
 
@@ -32,11 +32,11 @@ class TasksSystemTest < ApplicationSystemTestCase
     user = users(:one)
     user.tasks.destroy_all
 
-    visit root_path
+    visit admin_root_path
     assert_text "No pending tasks. All done!"
 
     user.tasks.create!(name: "Sweep")
-    visit root_path
+    visit admin_root_path
     assert_text "Sweep"
   end
 end

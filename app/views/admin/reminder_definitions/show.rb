@@ -1,15 +1,15 @@
-class Views::ReminderDefinitions::Show < Views::Base
+class Views::Admin::ReminderDefinitions::Show < Views::Base
   def initialize(user:, reminder_definition:)
     @user = user
     @reminder_definition = reminder_definition
   end
 
   def page_content
-    link_to "← Back to reminders", user_reminder_definitions_path(@user), class: "text-sm text-blue-600 hover:underline block mb-4"
+    link_to "← Back to reminders", admin_user_reminder_definitions_path(@user), class: "text-sm text-blue-600 hover:underline block mb-4"
 
     div(class: "flex items-center justify-between mb-6") do
       h1(class: "text-2xl font-bold text-gray-900") { "Reminder at #{@reminder_definition.time_of_day.strftime("%I:%M %p")}" }
-      link_to "Edit", edit_user_reminder_definition_path(@user, @reminder_definition), class: "text-sm text-blue-600 hover:underline"
+      link_to "Edit", edit_admin_user_reminder_definition_path(@user, @reminder_definition), class: "text-sm text-blue-600 hover:underline"
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6") do
@@ -19,7 +19,7 @@ class Views::ReminderDefinitions::Show < Views::Base
       }
     end
 
-    button_to "Send now", send_now_user_reminder_definition_path(@user, @reminder_definition), method: :post,
+    button_to "Send now", send_now_admin_user_reminder_definition_path(@user, @reminder_definition), method: :post,
       class: "bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-900"
   end
 end

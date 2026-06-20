@@ -1,4 +1,4 @@
-class Views::Users::Form < Views::Base
+class Views::Admin::Users::Form < Views::Base
   def initialize(user:)
     @user = user
   end
@@ -47,11 +47,11 @@ class Views::Users::Form < Views::Base
   private
 
   def form_url
-    @user.persisted? ? user_path(@user) : users_path
+    @user.persisted? ? admin_user_path(@user) : admin_users_path
   end
 
   def cancel_url
-    @user.persisted? ? user_path(@user) : users_path
+    @user.persisted? ? admin_user_path(@user) : admin_users_path
   end
 
   def time_zone_options
