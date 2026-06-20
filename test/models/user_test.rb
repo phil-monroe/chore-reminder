@@ -46,4 +46,51 @@ class UserTest < ActiveSupport::TestCase
     rendered = Liquid::Template.parse(user.message_template).render("task_name" => "Sweep", "link" => nil)
     assert_equal "Sweep\n\n", rendered
   end
+
+  test "invalid with a username containing uppercase or symbols" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}", username: "Sam Jones!")
+    assert_not user.valid?
+    assert_includes user.errors[:username], "can only contain lowercase letters, numbers, underscores, and hyphens, and can't be purely numeric"
+  end
+
+  test "invalid with a purely numeric username" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}", username: "12345")
+    assert_not user.valid?
+    assert_includes user.errors[:username], "can only contain lowercase letters, numbers, underscores, and hyphens, and can't be purely numeric"
+  end
+
+  test "invalid with a username already taken by another user" do
+    users(:one).update!(username: "sam")
+    user = User.new(name: "Other", phone_number: "+15555550199", message_template: "{{ task_name }}", username: "sam")
+    assert_not user.valid?
+    assert_includes user.errors[:username], "has already been taken"
+  end
+
+  test "valid with a blank username" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}")
+    assert user.valid?
+  end
+
+  test "normalizes an autocapitalized or whitespace-padded username before validating" do
+    user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}", username: " Sam ")
+    assert user.valid?
+    assert_equal "sam", user.username
+  end
+
+  test "to_param returns the username when present, otherwise the id" do
+    user = users(:one)
+    assert_equal user.id.to_s, user.to_param
+
+    user.update!(username: "alex")
+    assert_equal "alex", user.to_param
+  end
+
+  test ".find_by_param! finds by username when given a non-numeric param" do
+    users(:one).update!(username: "alex")
+    assert_equal users(:one), User.find_by_param!("alex")
+  end
+
+  test ".find_by_param! finds by id when given a numeric param" do
+    assert_equal users(:one), User.find_by_param!(users(:one).id.to_s)
+  end
 end

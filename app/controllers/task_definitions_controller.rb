@@ -51,7 +51,7 @@ class TaskDefinitionsController < ApplicationController
   private
 
   def set_task_definition
-    @task_definition = @user.task_definitions.find(params[:id])
+    @task_definition = @user.task_definitions.find_by_param!(params[:id])
   end
 
   def task_definition_params

@@ -16,6 +16,12 @@ class Views::Users::Show < Views::Base
         span(class: "text-gray-500") { "Phone: " }
         plain @user.phone_number
       }
+      if @user.username.present?
+        p {
+          span(class: "text-gray-500") { "Username: " }
+          plain @user.username
+        }
+      end
       p {
         span(class: "text-gray-500") { "Time zone: " }
         plain @user.time_zone

@@ -52,4 +52,24 @@ class TaskTest < ActiveSupport::TestCase
 
     assert_nil task.link_url
   end
+
+  test "link_url is the public unauthenticated page, keyed by the user's id and the task_definition's id by default" do
+    task = tasks(:one)
+
+    assert_includes task.link_url, "/#{task.task_definition.user.id}/#{task.task_definition.id}"
+  end
+
+  test "link_url uses the user's username instead of their id when present" do
+    task = tasks(:one)
+    task.task_definition.user.update!(username: "alex")
+
+    assert_includes task.link_url, "/alex/#{task.task_definition.id}"
+  end
+
+  test "link_url uses the task_definition's slug instead of its id when present" do
+    task = tasks(:one)
+    task.task_definition.update!(slug: "feed-the-pets")
+
+    assert_includes task.link_url, "/#{task.task_definition.user.id}/feed-the-pets"
+  end
 end

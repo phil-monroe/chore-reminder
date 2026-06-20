@@ -17,6 +17,17 @@ class TaskDefinitionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{user_task_definitions_path(td.user)}']", text: /Back to task definitions/
   end
 
+  test "a task definition with a slug is reachable at /task_definitions/:slug instead of /:id" do
+    td = task_definitions(:one)
+    td.update!(slug: "feed-the-pets")
+
+    assert_equal "/users/#{td.user.to_param}/task_definitions/feed-the-pets", user_task_definition_path(td.user, td)
+
+    get user_task_definition_path(td.user, td)
+
+    assert_response :success
+  end
+
   test "new form's cancel button links to the task definitions list" do
     user = users(:one)
 

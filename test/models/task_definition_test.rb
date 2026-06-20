@@ -63,4 +63,57 @@ class TaskDefinitionTest < ActiveSupport::TestCase
       td.generate_task_for_today!
     end
   end
+
+  test "autogenerates a slug from the name on create" do
+    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    assert_equal "walk-the-dog", td.slug
+  end
+
+  test "appends a numeric suffix when another task definition for the same user has the same slug" do
+    TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    second = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+
+    assert_equal "walk-the-dog-2", second.slug
+  end
+
+  test "does not append a suffix when the same name is used by a different user" do
+    TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    other_user_td = TaskDefinition.create!(name: "Walk the Dog", user: users(:two))
+
+    assert_equal "walk-the-dog", other_user_td.slug
+  end
+
+  test "does not regenerate the slug when the name is later changed" do
+    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+
+    td.update!(name: "Walk the Dogs")
+
+    assert_equal "walk-the-dog", td.slug
+  end
+
+  test "leaves the slug blank when the name has no parameterizable characters" do
+    td = TaskDefinition.create!(name: "🐶", user: users(:one))
+    assert_nil td.slug
+  end
+
+  test "to_param returns the slug when present, otherwise the id" do
+    td = task_definitions(:one)
+    assert_nil td.slug
+    assert_equal td.id.to_s, td.to_param
+
+    td.update!(slug: "feed-the-pets")
+    assert_equal "feed-the-pets", td.to_param
+  end
+
+  test ".find_by_param! finds by slug when given a non-numeric param" do
+    td = task_definitions(:one)
+    td.update!(slug: "feed-the-pets")
+
+    assert_equal td, TaskDefinition.find_by_param!("feed-the-pets")
+  end
+
+  test ".find_by_param! finds by id when given a numeric param" do
+    td = task_definitions(:one)
+    assert_equal td, TaskDefinition.find_by_param!(td.id.to_s)
+  end
 end

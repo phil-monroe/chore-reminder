@@ -45,6 +45,18 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{users_path}']", text: /Back to users/
   end
 
+  test "a user with a username is reachable at /users/:username instead of /users/:id" do
+    user = users(:one)
+    user.update!(username: "alex")
+
+    assert_equal "/users/alex", user_path(user)
+
+    get "/users/alex"
+
+    assert_response :success
+    assert_select "h1", text: user.name
+  end
+
   test "new form's cancel button links to the users list" do
     get new_user_path
 

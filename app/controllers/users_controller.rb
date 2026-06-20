@@ -81,7 +81,7 @@ class UsersController < ApplicationController
   private
 
   def set_user
-    @user = User.find(params[:id])
+    @user = User.find_by_param!(params[:id])
   end
 
   def with_time_zone(&block)
@@ -89,7 +89,7 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :phone_number, :message_template, :time_zone)
+    params.require(:user).permit(:name, :username, :phone_number, :message_template, :time_zone)
   end
 
   def run_sms_command(success_notice:, failure_prefix:, redirect_path: user_path(@user))

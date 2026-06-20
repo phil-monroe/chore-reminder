@@ -19,8 +19,8 @@ class Task < ApplicationRecord
   def link_url
     return nil if task_definition.nil?
 
-    Rails.application.routes.url_helpers.user_task_definition_url(
-      task_definition.user, task_definition,
+    Rails.application.routes.url_helpers.public_task_definition_url(
+      username: task_definition.user.to_param, task_definition_slug: task_definition.to_param,
       host: AppHost.primary, protocol: Rails.env.production? ? "https" : "http"
     )
   end

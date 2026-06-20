@@ -15,6 +15,13 @@ class Views::Users::Form < Views::Base
       end
 
       div do
+        f.label :username, class: "block text-sm font-medium text-gray-700"
+        p(class: "text-xs text-gray-500 mb-1") { "Optional. Used in links texted to this person instead of their numeric id, e.g. \"jane\" instead of \"42\". Lowercase letters, numbers, underscores, and hyphens only." }
+        f.text_field :username, placeholder: "jane", autocapitalize: "none", autocorrect: "off", spellcheck: "false",
+          class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+      end
+
+      div do
         f.label :phone_number, class: "block text-sm font-medium text-gray-700"
         f.text_field :phone_number, placeholder: "+15555550100", class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
       end

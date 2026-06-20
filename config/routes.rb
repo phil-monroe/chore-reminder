@@ -50,4 +50,17 @@ Rails.application.routes.draw do
       post :send_inbound_message
     end
   end
+
+  # The unauthenticated page linked from reminder texts (see Task#link_url) -
+  # household members tap this from their phone with no Basic Auth
+  # credentials, so it's excluded from the site-wide auth gate (see
+  # app/middleware/basic_auth_skip_health_check.rb) and kept outside
+  # /users/... entirely so it never collides with the authenticated admin
+  # routes above (which are matched first regardless, since routes are
+  # tried in declaration order). Constrained to the same charset
+  # User#username/TaskDefinition#slug are generated with (plus bare digits,
+  # since both fall back to their numeric id) so it doesn't swallow
+  # unrelated two-segment requests.
+  get "/:username/:task_definition_slug", to: "public/task_definitions#show", as: :public_task_definition,
+    constraints: {username: /[a-z0-9_-]+/, task_definition_slug: /[a-z0-9_-]+/}
 end
