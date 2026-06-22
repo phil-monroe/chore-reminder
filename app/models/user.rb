@@ -35,6 +35,13 @@ class User < ApplicationRecord
     ActiveSupport::TimeZone[time_zone]
   end
 
+  # Set by the SNOOZE SMS command (see User::HandleInboundSms) to pause
+  # outbound reminders/next-task notifications without modifying the
+  # underlying ReminderDefinition schedule itself.
+  def snoozed?
+    snoozed_until.present? && snoozed_until > Time.current
+  end
+
   private
 
   def message_template_is_valid_liquid

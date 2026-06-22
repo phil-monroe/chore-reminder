@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_121821) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_22_133455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -190,6 +190,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_121821) do
     t.text "message_template", default: "Up next: {{ task_name }}\n{% if link %}{{ link }}{% endif %}", null: false
     t.string "name", null: false
     t.string "phone_number", null: false
+    t.datetime "snoozed_until"
     t.string "time_zone", default: "America/New_York", null: false
     t.datetime "updated_at", null: false
     t.string "username"

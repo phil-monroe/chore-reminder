@@ -1,6 +1,7 @@
 class User::HandleInboundSms
-  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, or ADD <task name>.".freeze
+  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, ADD <task name>, or SNOOZE (until tomorrow / for <N> hours / until <N>am|pm).".freeze
   MAX_LIST_SIZE = 20
+  SNOOZE_USAGE = "Sorry, I didn't understand that. Try \"SNOOZE until tomorrow\", \"SNOOZE for 2 hours\", or \"SNOOZE until 4pm\".".freeze
 
   def initialize(user:, body:, deliver_reply: false, sender: nil)
     @user = user
@@ -44,6 +45,8 @@ class User::HandleInboundSms
     when /\Anext\z/i then list_next
     when /\Alist\z/i then list_all
     when /\Aadd\s+(.+)\z/i then add($1)
+    when /\Asnooze\s+(.+)\z/i then snooze($1)
+    when /\Asnooze\z/i then SNOOZE_USAGE
     else
       "Sorry, I didn't understand that. #{HELP_TEXT}"
     end
@@ -93,6 +96,41 @@ class User::HandleInboundSms
     @user.tasks.create!(name: name)
     notify_if_next_task_changed(previous_next_task_id: previous_next_task_id)
     "Added \"#{name}\" to your list."
+  end
+
+  # Pauses reminders (scheduled sends and realtime next-task notifications —
+  # see User#snoozed?, SendReminderJob, User::NotifyIfNextTaskChanged) until
+  # a point in time, without touching ReminderDefinition's own schedule, so
+  # snoozing has no effect on what's "next" once it lapses.
+  def snooze(args)
+    case args.strip
+    when /\Auntil\s+tomorrow\z/i
+      apply_snooze(tomorrow_5am)
+    when /\Afor\s+(\d+)\s*hours?\z/i
+      apply_snooze(Time.current + $1.to_i.hours)
+    when /\Auntil\s+(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?\z/i
+      apply_snooze(next_occurrence_of(hour: $1.to_i, minute: $2.to_i, meridiem: $3))
+    else
+      SNOOZE_USAGE
+    end
+  end
+
+  def apply_snooze(time)
+    @user.update!(snoozed_until: time)
+    "Reminders snoozed until #{time.in_time_zone(@user.time_zone_object).strftime("%-I:%M %p on %b %-d")}."
+  end
+
+  def tomorrow_5am
+    zone = @user.time_zone_object
+    zone.now.change(hour: 5, min: 0, sec: 0) + 1.day
+  end
+
+  def next_occurrence_of(hour:, minute:, meridiem:)
+    zone = @user.time_zone_object
+    hour %= 12
+    hour += 12 if meridiem.downcase.start_with?("p")
+    candidate = zone.now.change(hour: hour, min: minute, sec: 0)
+    (candidate > zone.now) ? candidate : candidate + 1.day
   end
 
   # Records that NotifyNextTaskChangedJob should fire for this previous next

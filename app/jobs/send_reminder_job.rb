@@ -7,6 +7,8 @@ class SendReminderJob < ApplicationJob
 
   def perform(reminder_definition_id)
     reminder = ReminderDefinition.find(reminder_definition_id)
+    return if reminder.user.snoozed?
+
     task = Task.next_for(reminder.user)
     return if task.nil?
 

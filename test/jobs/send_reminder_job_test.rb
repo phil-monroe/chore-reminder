@@ -65,6 +65,30 @@ class SendReminderJobTest < ActiveJob::TestCase
     assert_empty fake_sender.calls
   end
 
+  test "no-ops when the user is snoozed" do
+    reminder = reminder_definitions(:one)
+    reminder.user.tasks.destroy_all
+    reminder.user.tasks.create!(name: "Water plants")
+    reminder.user.update!(snoozed_until: 1.hour.from_now)
+
+    fake_sender = FakeSender.new
+    with_sender(fake_sender) { SendReminderJob.perform_now(reminder.id) }
+
+    assert_empty fake_sender.calls
+  end
+
+  test "sends normally once the snooze has lapsed" do
+    reminder = reminder_definitions(:one)
+    reminder.user.tasks.destroy_all
+    reminder.user.tasks.create!(name: "Water plants")
+    reminder.user.update!(snoozed_until: 1.hour.ago)
+
+    fake_sender = FakeSender.new
+    with_sender(fake_sender) { SendReminderJob.perform_now(reminder.id) }
+
+    assert_equal 1, fake_sender.calls.size
+  end
+
   test "retries on Twilio::REST::RestError instead of raising" do
     reminder = reminder_definitions(:one)
     reminder.user.tasks.destroy_all

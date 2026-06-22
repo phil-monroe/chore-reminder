@@ -146,6 +146,93 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     assert_match(/didn't understand/, reply)
   end
 
+  test "SNOOZE until tomorrow pauses reminders until 5am the next day in the user's time zone" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+
+    travel_to Time.utc(2026, 6, 22, 18, 0, 0) do # 2pm Eastern
+      reply = User::HandleInboundSms.new(user: user, body: "SNOOZE until tomorrow").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 23, 5, 0, 0)
+      assert_equal expected, user.reload.snoozed_until
+      assert_equal "Reminders snoozed until 5:00 AM on Jun 23.", reply
+    end
+  end
+
+  test "SNOOZE for N hours pauses reminders for that many hours from now" do
+    user = users(:one)
+
+    travel_to Time.utc(2026, 6, 22, 18, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "SNOOZE for 3 hours").call
+
+      assert_equal 3.hours.from_now, user.reload.snoozed_until
+    end
+  end
+
+  test "SNOOZE for 1 hour (singular) is accepted" do
+    user = users(:one)
+
+    travel_to Time.utc(2026, 6, 22, 18, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "SNOOZE for 1 hour").call
+
+      assert_equal 1.hour.from_now, user.reload.snoozed_until
+    end
+  end
+
+  test "SNOOZE until <N>pm pauses reminders until that time today when it's still in the future" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+
+    travel_to ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 10, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "SNOOZE until 4pm").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 16, 0, 0)
+      assert_equal expected, user.reload.snoozed_until
+    end
+  end
+
+  test "SNOOZE until <N>am rolls over to tomorrow when that time has already passed today" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+
+    travel_to ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 10, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "SNOOZE until 9am").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 23, 9, 0, 0)
+      assert_equal expected, user.reload.snoozed_until
+    end
+  end
+
+  test "SNOOZE until time parsing is forgiving of spacing, case, and minutes" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+
+    travel_to ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 10, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "snooze UNTIL 4:30 PM").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 16, 30, 0)
+      assert_equal expected, user.reload.snoozed_until
+    end
+  end
+
+  test "SNOOZE with no recognizable duration is an unrecognized snooze command" do
+    user = users(:one)
+
+    reply = User::HandleInboundSms.new(user: user, body: "SNOOZE whenever").call
+
+    assert_match(/didn't understand/, reply)
+    assert_nil user.reload.snoozed_until
+  end
+
+  test "SNOOZE alone, with no duration, returns usage help" do
+    user = users(:one)
+
+    reply = User::HandleInboundSms.new(user: user, body: "SNOOZE").call
+
+    assert_match(/didn't understand/, reply)
+    assert_nil user.reload.snoozed_until
+  end
+
   test "an unrecognized message returns a help reply" do
     user = users(:one)
 

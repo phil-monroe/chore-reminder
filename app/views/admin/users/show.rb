@@ -26,6 +26,11 @@ class Views::Admin::Users::Show < Views::Base
         span(class: "text-gray-500") { "Time zone: " }
         plain @user.time_zone
       }
+      if @user.snoozed?
+        p(class: "text-amber-600") {
+          plain "Reminders snoozed until #{@user.snoozed_until.in_time_zone(@user.time_zone_object).strftime("%-I:%M %p on %b %-d")}."
+        }
+      end
       p(class: "text-gray-500 text-sm") { "Message template:" }
       pre(class: "bg-gray-50 rounded p-2 text-sm whitespace-pre-wrap") { @user.message_template }
     end
