@@ -233,6 +233,34 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     assert_nil user.reload.snoozed_until
   end
 
+  test "UNSNOOZE cancels an active snooze" do
+    user = users(:one)
+    user.update!(snoozed_until: 1.hour.from_now)
+
+    reply = User::HandleInboundSms.new(user: user, body: "UNSNOOZE").call
+
+    assert_equal "Reminders un-snoozed.", reply
+    assert_nil user.reload.snoozed_until
+  end
+
+  test "UNSNOOZE is case-insensitive and ignores surrounding whitespace" do
+    user = users(:one)
+    user.update!(snoozed_until: 1.hour.from_now)
+
+    reply = User::HandleInboundSms.new(user: user, body: "  unsnooze  ").call
+
+    assert_equal "Reminders un-snoozed.", reply
+    assert_nil user.reload.snoozed_until
+  end
+
+  test "UNSNOOZE when not currently snoozed says so without raising" do
+    user = users(:one)
+
+    reply = User::HandleInboundSms.new(user: user, body: "UNSNOOZE").call
+
+    assert_equal "You're not currently snoozed.", reply
+  end
+
   test "an unrecognized message returns a help reply" do
     user = users(:one)
 

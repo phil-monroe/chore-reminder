@@ -1,5 +1,5 @@
 class User::HandleInboundSms
-  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, ADD <task name>, or SNOOZE (until tomorrow / for <N> hours / until <N>am|pm).".freeze
+  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, ADD <task name>, SNOOZE (until tomorrow / for <N> hours / until <N>am|pm), or UNSNOOZE.".freeze
   MAX_LIST_SIZE = 20
   SNOOZE_USAGE = "Sorry, I didn't understand that. Try \"SNOOZE until tomorrow\", \"SNOOZE for 2 hours\", or \"SNOOZE until 4pm\".".freeze
 
@@ -47,6 +47,7 @@ class User::HandleInboundSms
     when /\Aadd\s+(.+)\z/i then add($1)
     when /\Asnooze\s+(.+)\z/i then snooze($1)
     when /\Asnooze\z/i then SNOOZE_USAGE
+    when /\Aunsnooze\z/i then unsnooze
     else
       "Sorry, I didn't understand that. #{HELP_TEXT}"
     end
@@ -98,10 +99,11 @@ class User::HandleInboundSms
     "Added \"#{name}\" to your list."
   end
 
-  # Pauses reminders (scheduled sends and realtime next-task notifications —
-  # see User#snoozed?, SendReminderJob, User::NotifyIfNextTaskChanged) until
-  # a point in time, without touching ReminderDefinition's own schedule, so
-  # snoozing has no effect on what's "next" once it lapses.
+  # Pauses scheduled reminders (see User#snoozed?, SendReminderJob) until a
+  # point in time, without touching ReminderDefinition's own schedule, so
+  # snoozing has no effect on what's "next" once it lapses. Realtime
+  # next-task-changed notifications are deliberately unaffected — see
+  # User#snoozed?.
   def snooze(args)
     case args.strip
     when /\Auntil\s+tomorrow\z/i
@@ -118,6 +120,13 @@ class User::HandleInboundSms
   def apply_snooze(time)
     @user.update!(snoozed_until: time)
     "Reminders snoozed until #{time.in_time_zone(@user.time_zone_object).strftime("%-I:%M %p on %b %-d")}."
+  end
+
+  def unsnooze
+    return "You're not currently snoozed." unless @user.snoozed?
+
+    @user.update!(snoozed_until: nil)
+    "Reminders un-snoozed."
   end
 
   def tomorrow_5am

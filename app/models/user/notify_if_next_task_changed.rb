@@ -14,8 +14,6 @@ class User::NotifyIfNextTaskChanged
   end
 
   def call
-    return if @user.snoozed?
-
     current_next_task = Task.next_for(@user)
     return if current_next_task&.id == @previous_next_task_id
 

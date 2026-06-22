@@ -36,8 +36,11 @@ class User < ApplicationRecord
   end
 
   # Set by the SNOOZE SMS command (see User::HandleInboundSms) to pause
-  # outbound reminders/next-task notifications without modifying the
-  # underlying ReminderDefinition schedule itself.
+  # scheduled reminders (SendReminderJob) without modifying the underlying
+  # ReminderDefinition schedule itself. Deliberately doesn't affect realtime
+  # next-task-changed notifications (User::NotifyIfNextTaskChanged) — those
+  # fire in direct response to a list change (e.g. a DONE/SKIP/ADD reply or
+  # a web UI edit), not on the reminder schedule snoozing is meant to pause.
   def snoozed?
     snoozed_until.present? && snoozed_until > Time.current
   end

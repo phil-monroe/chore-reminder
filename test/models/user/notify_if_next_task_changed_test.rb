@@ -36,16 +36,17 @@ class User::NotifyIfNextTaskChangedTest < ActiveSupport::TestCase
     assert_equal "No more tasks!", fake_sender.calls.first[:body]
   end
 
-  test "does nothing when the user is snoozed, even if the next task id changed" do
+  test "still texts even when the user is snoozed (snoozing only pauses scheduled reminders)" do
     user = users(:one)
     user.tasks.destroy_all
-    user.tasks.create!(name: "Walk the dog")
+    new_next = user.tasks.create!(name: "Walk the dog")
     user.update!(snoozed_until: 1.hour.from_now)
     fake_sender = User::SendMessageTest::FakeSender.new
 
     User::NotifyIfNextTaskChanged.new(user: user, previous_next_task_id: -1, sender: fake_sender).call
 
-    assert_empty fake_sender.calls
+    assert_equal 1, fake_sender.calls.size
+    assert_includes fake_sender.calls.first[:body], new_next.name
   end
 
   test "does nothing when there was no next task before and there still isn't one" do
