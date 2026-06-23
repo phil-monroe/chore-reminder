@@ -29,3 +29,8 @@
 
 en:
   hello: "Hello world"
+  time:
+    formats:
+      time_of_day: "%I:%M %p"
+      short_with_time: "%a %b %-d, %I:%M %p"
+      conversation_timestamp: "%b %-d, %I:%M %p"

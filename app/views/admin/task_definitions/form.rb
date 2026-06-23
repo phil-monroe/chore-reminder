@@ -32,6 +32,11 @@ class Views::Admin::TaskDefinitions::Form < Views::Base
       end
 
       div do
+        f.label :time_of_day, "Time of day", class: "block text-sm font-medium text-gray-700"
+        f.time_field :time_of_day, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+      end
+
+      div do
         f.label :images, "Images", class: "block text-sm font-medium text-gray-700"
         f.file_field :images, multiple: true, class: "mt-1 block w-full text-sm"
       end

@@ -29,84 +29,35 @@ class TaskDefinitionTest < ActiveSupport::TestCase
     assert_equal "", td.rendered_description
   end
 
-  test "generate_task_for_today! creates a task only when recurring today and not already generated" do
-    td = task_definitions(:one)
-    td.update!(recurrence_days: [Date.current.wday])
-    td.tasks.destroy_all
-
-    assert_difference -> { td.tasks.count }, 1 do
-      td.generate_task_for_today!
-    end
-
-    assert_no_difference -> { td.tasks.count } do
-      td.generate_task_for_today!
-    end
-  end
-
-  test "generate_task_for_today! does not generate a new task while a previous one is still pending, even from an earlier day" do
-    td = task_definitions(:one)
-    td.update!(recurrence_days: [Date.current.wday])
-    td.tasks.destroy_all
-    td.tasks.create!(name: td.name, user: td.user, done: false, created_at: 3.days.ago)
-
-    assert_no_difference -> { td.tasks.count } do
-      td.generate_task_for_today!
-    end
-  end
-
-  test "generate_task_for_today! generates a new task once the previous one is done, even from an earlier day" do
-    td = task_definitions(:one)
-    td.update!(recurrence_days: [Date.current.wday])
-    td.tasks.destroy_all
-    td.tasks.create!(name: td.name, user: td.user, done: true, created_at: 3.days.ago)
-
-    assert_difference -> { td.tasks.count }, 1 do
-      td.generate_task_for_today!
-    end
-  end
-
-  test "generate_task_for_today! does nothing on a non-recurring day" do
-    td = task_definitions(:one)
-    non_today = (Date.current.wday + 1) % 7
-    td.update!(recurrence_days: [non_today])
-    td.tasks.destroy_all
-
-    assert_no_difference -> { td.tasks.count } do
-      td.generate_task_for_today!
-    end
-  end
-
-  test "generate_task_for_today! enqueues a next-task notification when it creates a task" do
-    td = task_definitions(:one)
-    td.update!(recurrence_days: [Date.current.wday])
-    td.user.tasks.destroy_all
-
-    assert_enqueued_with(job: NotifyNextTaskChangedJob, args: [td.user_id, nil]) do
-      td.generate_task_for_today!
+  test "recomputes next_generate_at when time_of_day is edited" do
+    travel_to Time.zone.local(2026, 6, 17, 6, 0, 0) do
+      td = task_definitions(:one)
+      td.update!(time_of_day: "07:00")
+      assert_equal Time.zone.local(2026, 6, 17, 7, 0, 0), td.next_generate_at
     end
   end
 
   test "autogenerates a slug from the name on create" do
-    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one), time_of_day: "08:00")
     assert_equal "walk-the-dog", td.slug
   end
 
   test "appends a numeric suffix when another task definition for the same user has the same slug" do
-    TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
-    second = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    TaskDefinition.create!(name: "Walk the Dog", user: users(:one), time_of_day: "08:00")
+    second = TaskDefinition.create!(name: "Walk the Dog", user: users(:one), time_of_day: "08:00")
 
     assert_equal "walk-the-dog-2", second.slug
   end
 
   test "does not append a suffix when the same name is used by a different user" do
-    TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
-    other_user_td = TaskDefinition.create!(name: "Walk the Dog", user: users(:two))
+    TaskDefinition.create!(name: "Walk the Dog", user: users(:one), time_of_day: "08:00")
+    other_user_td = TaskDefinition.create!(name: "Walk the Dog", user: users(:two), time_of_day: "08:00")
 
     assert_equal "walk-the-dog", other_user_td.slug
   end
 
   test "does not regenerate the slug when the name is later changed" do
-    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one))
+    td = TaskDefinition.create!(name: "Walk the Dog", user: users(:one), time_of_day: "08:00")
 
     td.update!(name: "Walk the Dogs")
 
@@ -114,7 +65,7 @@ class TaskDefinitionTest < ActiveSupport::TestCase
   end
 
   test "leaves the slug blank when the name has no parameterizable characters" do
-    td = TaskDefinition.create!(name: "🐶", user: users(:one))
+    td = TaskDefinition.create!(name: "🐶", user: users(:one), time_of_day: "08:00")
     assert_nil td.slug
   end
 

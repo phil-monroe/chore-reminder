@@ -44,7 +44,7 @@ class Admin::TaskDefinitionsController < ApplicationController
   end
 
   def generate_now
-    @task_definition.generate_task_for_today!
+    TaskDefinition::GenerateForToday.new(task_definition: @task_definition).call
     redirect_to admin_user_task_definition_path(@user, @task_definition), notice: "Today's task generated (if not already created)."
   end
 
@@ -55,6 +55,6 @@ class Admin::TaskDefinitionsController < ApplicationController
   end
 
   def task_definition_params
-    params.require(:task_definition).permit(:name, :description, recurrence_days: [], images: [])
+    params.require(:task_definition).permit(:name, :description, :time_of_day, recurrence_days: [], images: [])
   end
 end

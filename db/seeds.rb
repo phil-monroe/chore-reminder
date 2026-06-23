@@ -8,17 +8,23 @@ phil = User.find_or_create_by!(phone_number: "+16148329495") do |u|
   u.name = "Phil"
 end
 
-feed_pets = TaskDefinition.find_or_create_by!(user: phil, name: "Feed the pets") do |td|
-  td.description = "Fill both bowls with **1 cup** of dry food.\n\n- Dog bowl is by the back door\n- Cat bowl is on the counter"
-  td.recurrence_days = (0..6).to_a
+feed_pets = Time.use_zone(phil.time_zone) do
+  TaskDefinition.find_or_create_by!(user: phil, name: "Feed the pets") do |td|
+    td.description = "Fill both bowls with **1 cup** of dry food.\n\n- Dog bowl is by the back door\n- Cat bowl is on the counter"
+    td.recurrence_days = (0..6).to_a
+    td.time_of_day = "08:00"
+  end
 end
 
-trash = TaskDefinition.find_or_create_by!(user: phil, name: "Take out the trash") do |td|
-  td.description = "Bins go to the curb the night before pickup."
-  td.recurrence_days = [today_wday]
+trash = Time.use_zone(phil.time_zone) do
+  TaskDefinition.find_or_create_by!(user: phil, name: "Take out the trash") do |td|
+    td.description = "Bins go to the curb the night before pickup."
+    td.recurrence_days = [today_wday]
+    td.time_of_day = "18:00"
+  end
 end
 
-[feed_pets, trash].each(&:generate_task_for_today!)
+[feed_pets, trash].each { |td| TaskDefinition::GenerateForToday.new(task_definition: td).call }
 
 Task.find_or_create_by!(user: phil, name: "Water the porch plants")
 

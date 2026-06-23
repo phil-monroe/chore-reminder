@@ -1,4 +1,6 @@
 class Views::Admin::ReminderDefinitions::Index < Views::Base
+  include Phlex::Rails::Helpers::L
+
   def initialize(user:, reminder_definitions:)
     @user = user
     @reminder_definitions = reminder_definitions
@@ -19,8 +21,8 @@ class Views::Admin::ReminderDefinitions::Index < Views::Base
         @reminder_definitions.each do |rd|
           div(class: "bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between") do
             div do
-              link_to rd.time_of_day.strftime("%I:%M %p"), admin_user_reminder_definition_path(@user, rd), class: "font-medium text-gray-900 hover:underline"
-              p(class: "text-xs text-gray-500") { "Next send: #{rd.next_send_at.strftime("%a %b %-d, %I:%M %p")}" }
+              link_to l(rd.time_of_day, format: :time_of_day), admin_user_reminder_definition_path(@user, rd), class: "font-medium text-gray-900 hover:underline"
+              p(class: "text-xs text-gray-500") { "Next send: #{l(rd.next_send_at, format: :short_with_time)}" }
             end
             div(class: "flex gap-3 text-sm") do
               link_to "Edit", edit_admin_user_reminder_definition_path(@user, rd), class: "text-blue-600 hover:underline"

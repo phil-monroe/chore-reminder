@@ -1,4 +1,6 @@
 class Views::Admin::TaskDefinitions::Show < Views::Base
+  include Phlex::Rails::Helpers::L
+
   def initialize(user:, task_definition:)
     @user = user
     @task_definition = task_definition
@@ -14,6 +16,17 @@ class Views::Admin::TaskDefinitions::Show < Views::Base
           target: "_blank", rel: "noopener", class: "text-sm text-blue-600 hover:underline"
         link_to "Edit", edit_admin_user_task_definition_path(@user, @task_definition), class: "text-sm text-blue-600 hover:underline"
       end
+    end
+
+    div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6") do
+      p {
+        span(class: "text-gray-500") { "Generates at: " }
+        plain l(@task_definition.time_of_day, format: :time_of_day)
+      }
+      p {
+        span(class: "text-gray-500") { "Next check: " }
+        plain l(@task_definition.next_generate_at, format: :short_with_time)
+      }
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6 prose prose-sm max-w-none") do

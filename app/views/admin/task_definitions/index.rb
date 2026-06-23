@@ -1,4 +1,6 @@
 class Views::Admin::TaskDefinitions::Index < Views::Base
+  include Phlex::Rails::Helpers::L
+
   def initialize(user:, task_definitions:)
     @user = user
     @task_definitions = task_definitions
@@ -21,7 +23,7 @@ class Views::Admin::TaskDefinitions::Index < Views::Base
           div(class: "bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between") do
             div do
               link_to td.name, admin_user_task_definition_path(@user, td), class: "font-medium text-gray-900 hover:underline"
-              p(class: "text-xs text-gray-500") { recurrence_summary(td) }
+              p(class: "text-xs text-gray-500") { "#{recurrence_summary(td)} at #{l(td.time_of_day, format: :time_of_day)}" }
             end
             div(class: "flex gap-2 text-sm") do
               link_to "Edit", edit_admin_user_task_definition_path(@user, td),

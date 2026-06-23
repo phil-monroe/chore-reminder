@@ -119,7 +119,7 @@ class User::HandleInboundSms
 
   def apply_snooze(time)
     @user.update!(snoozed_until: time)
-    "Reminders snoozed until #{time.in_time_zone(@user.time_zone_object).strftime("%-I:%M %p on %b %-d")}."
+    "Reminders snoozed until #{I18n.l(time.in_time_zone(@user.time_zone_object), format: :short_with_time)}."
   end
 
   def unsnooze

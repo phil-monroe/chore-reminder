@@ -1,4 +1,6 @@
 class Views::Admin::Users::Conversation < Views::Base
+  include Phlex::Rails::Helpers::L
+
   def initialize(user:, messages:)
     @user = user
     @messages = messages
@@ -38,7 +40,7 @@ class Views::Admin::Users::Conversation < Views::Base
     div(class: "flex #{outbound ? "justify-start" : "justify-end"}") do
       div(class: "max-w-[75%] rounded-2xl px-4 py-2 shadow-sm #{outbound ? "bg-white text-gray-900" : "bg-blue-600 text-white"}") do
         p(class: "text-sm whitespace-pre-wrap break-words") { linkify(message.body) }
-        p(class: "text-xs mt-1 #{outbound ? "text-gray-400" : "text-blue-100"}") { message.created_at.strftime("%b %-d, %-I:%M %p") }
+        p(class: "text-xs mt-1 #{outbound ? "text-gray-400" : "text-blue-100"}") { l(message.created_at, format: :conversation_timestamp) }
       end
     end
   end

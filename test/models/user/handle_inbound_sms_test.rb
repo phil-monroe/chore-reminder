@@ -155,7 +155,7 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
 
       expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 23, 5, 0, 0)
       assert_equal expected, user.reload.snoozed_until
-      assert_equal "Reminders snoozed until 5:00 AM on Jun 23.", reply
+      assert_equal "Reminders snoozed until Tue Jun 23, 05:00 AM.", reply
     end
   end
 

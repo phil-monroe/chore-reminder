@@ -1,4 +1,6 @@
 class Views::Admin::Users::Show < Views::Base
+  include Phlex::Rails::Helpers::L
+
   def initialize(user:)
     @user = user
   end
@@ -28,7 +30,7 @@ class Views::Admin::Users::Show < Views::Base
       }
       if @user.snoozed?
         p(class: "text-amber-600") {
-          plain "Reminders snoozed until #{@user.snoozed_until.in_time_zone(@user.time_zone_object).strftime("%-I:%M %p on %b %-d")}."
+          plain "Reminders snoozed until #{l(@user.snoozed_until.in_time_zone(@user.time_zone_object), format: :short_with_time)}."
         }
       end
       p(class: "text-gray-500 text-sm") { "Message template:" }

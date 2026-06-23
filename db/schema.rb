@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_133455) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_22_205917) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -165,8 +165,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_133455) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "name", null: false
+    t.datetime "next_generate_at", null: false
     t.integer "recurrence_days", default: [], null: false, array: true
     t.string "slug"
+    t.time "time_of_day", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id", "slug"], name: "index_task_definitions_on_user_id_and_slug", unique: true

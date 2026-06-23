@@ -10,6 +10,7 @@ class TaskDefinitionsSystemTest < ApplicationSystemTestCase
     fill_in "Name", with: "Vacuum the living room"
     fill_in "Description (Markdown)", with: "Use the **upright** vacuum."
     check "Sunday"
+    fill_in "Time of day", with: "2024-01-01 10:00"
     click_on "Create Task definition"
 
     assert_text "Vacuum the living room"

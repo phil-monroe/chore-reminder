@@ -2,10 +2,14 @@ one:
   name: Feed the pets
   description: "Fill **both** bowls."
   recurrence_days: []
+  time_of_day: 2000-01-01 08:00:00
+  next_generate_at: <%= 1.day.ago %>
   user: one
 
 two:
   name: Take out the trash
   description: "Bins to the curb."
   recurrence_days: []
+  time_of_day: 2000-01-01 08:15:00
+  next_generate_at: <%= 1.day.from_now %>
   user: two
