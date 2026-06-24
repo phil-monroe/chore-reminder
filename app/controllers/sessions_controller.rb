@@ -5,7 +5,11 @@
 # would itself require already being logged in.
 class SessionsController < ApplicationController
   def new
-    render Views::Sessions::New.new
+    if session[Admin::BaseController::SESSION_KEY]
+      redirect_to admin_root_path
+    else
+      render Views::Sessions::New.new
+    end
   end
 
   def create
