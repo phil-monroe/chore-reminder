@@ -9,8 +9,12 @@ class Views::Admin::Dashboard::Index < Views::Base
     if @users.empty?
       empty_state
     else
-      div(class: "space-y-4") do
+      div(class: "space-y-4 mb-6") do
         @users.each { |user| user_card(user) }
+      end
+
+      div(class: "text-center") do
+        link_to "Add user", new_admin_user_path, class: "text-sm text-gray-400 hover:text-gray-600 hover:underline"
       end
     end
   end
@@ -27,10 +31,7 @@ class Views::Admin::Dashboard::Index < Views::Base
 
   def user_card(user)
     div(class: "bg-white border border-gray-200 rounded-lg p-4 shadow-sm") do
-      div(class: "flex items-center justify-between") do
-        link_to user.name, admin_user_path(user), class: "font-semibold text-gray-900 hover:underline"
-        link_to "All tasks", admin_user_tasks_path(user), class: "text-sm text-blue-600 hover:underline"
-      end
+      link_to user.name, admin_user_path(user), class: "font-semibold text-gray-900 hover:underline"
 
       render Views::Admin::Dashboard::NextTask.new(user: user)
     end

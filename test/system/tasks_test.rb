@@ -11,7 +11,7 @@ class TasksSystemTest < ApplicationSystemTestCase
     assert_text "First task"
     assert_text "Second task"
 
-    within all(".bg-white.border", minimum: 2).last do
+    within all("#tasks > .bg-white.border", minimum: 2).last do
       click_on "↑"
     end
 
@@ -22,7 +22,7 @@ class TasksSystemTest < ApplicationSystemTestCase
     assert_selector ".bg-white.border:first-child", text: "Second task"
 
     within first(".bg-white.border", text: "Second task") do
-      click_on "done"
+      click_on "Mark done"
     end
 
     assert_equal first, Task.next_for(user)

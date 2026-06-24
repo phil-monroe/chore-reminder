@@ -39,12 +39,6 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Twilio is not configured/, response.body)
   end
 
-  test "show page links back to the users list" do
-    get admin_user_path(users(:one))
-
-    assert_select "a[href='#{admin_users_path}']", text: /Back to users/
-  end
-
   test "a user with a username is reachable at /admin/users/:username instead of /admin/users/:id" do
     user = users(:one)
     user.update!(username: "alex")

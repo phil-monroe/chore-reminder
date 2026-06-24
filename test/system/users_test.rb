@@ -10,9 +10,9 @@ class UsersSystemTest < ApplicationSystemTestCase
     click_on "Create User"
 
     assert_text "Robin"
-    assert_text "+15555550150"
 
-    click_on "Edit"
+    open_user_actions_menu
+    click_on "User Settings"
     fill_in "Name", with: "Robin Updated"
     click_on "Update User"
 
@@ -31,6 +31,7 @@ class UsersSystemTest < ApplicationSystemTestCase
   test "sending a freeform message and a welcome message both show a friendly error without Twilio configured" do
     visit admin_user_path(users(:one))
 
+    open_user_actions_menu
     click_on "Send message"
     assert_text "Send a message to Alex"
     fill_in "Type a one-off message to send right now…", with: "Don't forget the trash!"
@@ -38,6 +39,7 @@ class UsersSystemTest < ApplicationSystemTestCase
     assert_text "Twilio is not configured"
 
     visit admin_user_path(users(:one))
+    open_user_actions_menu
     click_on "Send welcome message"
     assert_text "Twilio is not configured"
   end
@@ -45,8 +47,15 @@ class UsersSystemTest < ApplicationSystemTestCase
   test "sending a blank freeform message is rejected before contacting Twilio" do
     visit admin_user_path(users(:one))
 
+    open_user_actions_menu
     click_on "Send message"
     click_on "Send"
     assert_text "Message can't be blank"
+  end
+
+  private
+
+  def open_user_actions_menu
+    within("#user-actions-menu") { find("summary").click }
   end
 end

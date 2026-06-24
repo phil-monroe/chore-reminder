@@ -23,7 +23,7 @@ class Admin::TasksController < Admin::BaseController
     @task = @user.tasks.new(task_params)
     if @task.save
       notify_if_next_task_changed(previous_next_task_id)
-      redirect_to admin_user_tasks_path(@user), notice: "Task created."
+      redirect_to admin_user_path(@user), notice: "Task created."
     else
       render Views::Admin::Tasks::Form.new(user: @user, task: @task), status: :unprocessable_content
     end
@@ -95,12 +95,21 @@ class Admin::TasksController < Admin::BaseController
     show_done = params[:done] == "true"
     @tasks = tasks_for_filter(show_done)
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.replace("tasks", Views::Admin::Tasks::List.new(user: @user, tasks: @tasks, show_done: show_done)) }
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace("tasks", Views::Admin::Tasks::List.new(user: @user, tasks: @tasks, show_done: show_done)),
+          turbo_stream.replace("task-stats", Views::Admin::Users::TaskStats.new(user: @user))
+        ]
+      end
       format.html { redirect_to admin_user_tasks_path(@user, done: show_done || nil) }
     end
   end
 
   def tasks_for_filter(show_done)
-    show_done ? @user.tasks.done.order(:position) : @user.tasks.pending.order(:position)
+    if show_done
+      @user.tasks.done.where(updated_at: 2.weeks.ago..).order(updated_at: :desc)
+    else
+      @user.tasks.pending.order(:position)
+    end
   end
 end
