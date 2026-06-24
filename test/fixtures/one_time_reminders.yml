@@ -1,0 +1,7 @@
+one:
+  send_at: <%= 1.hour.ago %>
+  user: one
+
+two:
+  send_at: <%= 1.day.from_now %>
+  user: two

@@ -300,6 +300,74 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     assert_equal "You're not currently snoozed.", reply
   end
 
+  test "REMIND me in N hours schedules a one-time reminder that many hours from now" do
+    user = users(:one)
+    user.one_time_reminders.destroy_all
+
+    travel_to Time.utc(2026, 6, 22, 18, 0, 0) do
+      reply = User::HandleInboundSms.new(user: user, body: "REMIND me in 3 hours").call
+
+      reminder = user.one_time_reminders.sole
+      assert_equal 3.hours.from_now, reminder.send_at
+      assert_equal "Reminder set for Mon Jun 22, 09:00 PM.", reply
+    end
+  end
+
+  test "REMIND in N hours, without 'me', is also accepted" do
+    user = users(:one)
+    user.one_time_reminders.destroy_all
+
+    travel_to Time.utc(2026, 6, 22, 18, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "REMIND in 1 hour").call
+
+      assert_equal 1.hour.from_now, user.one_time_reminders.sole.send_at
+    end
+  end
+
+  test "REMIND me at <N>pm schedules a one-time reminder for that time today when it's still in the future" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+    user.one_time_reminders.destroy_all
+
+    travel_to ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 10, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "REMIND me at 4pm").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 16, 0, 0)
+      assert_equal expected, user.one_time_reminders.sole.send_at
+    end
+  end
+
+  test "REMIND me at <N>am rolls over to tomorrow when that time has already passed today" do
+    user = users(:one)
+    user.update!(time_zone: "America/New_York")
+    user.one_time_reminders.destroy_all
+
+    travel_to ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 22, 10, 0, 0) do
+      User::HandleInboundSms.new(user: user, body: "REMIND me at 9am").call
+
+      expected = ActiveSupport::TimeZone["America/New_York"].local(2026, 6, 23, 9, 0, 0)
+      assert_equal expected, user.one_time_reminders.sole.send_at
+    end
+  end
+
+  test "REMIND does not enqueue a next-task notification" do
+    user = users(:one)
+
+    assert_no_enqueued_jobs(only: NotifyNextTaskChangedJob) do
+      User::HandleInboundSms.new(user: user, body: "REMIND me in 2 hours").call
+    end
+  end
+
+  test "REMIND with no recognizable time is an unrecognized reminder command" do
+    user = users(:one)
+    user.one_time_reminders.destroy_all
+
+    reply = User::HandleInboundSms.new(user: user, body: "REMIND me sometime").call
+
+    assert_match(/didn't understand/, reply)
+    assert_empty user.one_time_reminders
+  end
+
   test "an unrecognized message returns a help reply" do
     user = users(:one)
 

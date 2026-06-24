@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_145201) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_24_224015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -161,6 +161,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_145201) do
     t.index ["client_id"], name: "index_oauth_clients_on_client_id", unique: true
   end
 
+  create_table "one_time_reminders", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "send_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_one_time_reminders_on_user_id"
+  end
+
   create_table "reminder_definitions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "next_send_at", null: false
@@ -213,6 +221,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_145201) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "messages", "users"
+  add_foreign_key "one_time_reminders", "users"
   add_foreign_key "reminder_definitions", "users"
   add_foreign_key "task_definitions", "users"
   add_foreign_key "tasks", "task_definitions", on_delete: :nullify

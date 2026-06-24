@@ -15,6 +15,10 @@ if Rails.env.development? || Rails.env.production?
       cron: "*/15 * * * *",
       class: "ReminderDispatchJob"
     },
+    one_time_reminder_dispatch: {
+      cron: "*/15 * * * *",
+      class: "OneTimeReminderDispatchJob"
+    },
     task_generation_dispatch: {
       cron: "*/15 * * * *",
       class: "TaskGenerationDispatchJob"

@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :task_definitions, dependent: :destroy
   has_many :reminder_definitions, dependent: :destroy
+  has_many :one_time_reminders, dependent: :destroy
   has_many :messages, dependent: :destroy
 
   validates :name, presence: true

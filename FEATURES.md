@@ -29,6 +29,7 @@ A household member can reply to any reminder text to manage their own list, with
 - `ADD <name>` — adds a new task to their list
 - `SNOOZE until tomorrow` / `SNOOZE for <N> hours` / `SNOOZE until <N>am|pm` — pauses scheduled reminders until that time
 - `UNSNOOZE` — cancels an active snooze
+- `REMIND me in <N> hours` / `REMIND me at <N>am|pm` — schedules a one-time reminder text, without changing the daily recurring schedule
 
 ## Real-time "what's next" updates
 
@@ -44,7 +45,7 @@ A caregiver can connect Claude (the AI assistant) directly to their household's 
 
 ## Conversation history
 
-The admin area has a chat-style view of every text exchanged with a household member, oldest first, so a caregiver can see exactly what was sent and what they replied. A caregiver can also simulate a text reply from this view — useful when standing next to the person rather than texting them — which runs the same DONE/SKIP/NEXT/LIST/ADD/SNOOZE handling as a real text and actually sends the reply.
+The admin area has a chat-style view of every text exchanged with a household member, oldest first, so a caregiver can see exactly what was sent and what they replied. A caregiver can also simulate a text reply from this view — useful when standing next to the person rather than texting them — which runs the same DONE/SKIP/NEXT/LIST/ADD/SNOOZE/REMIND handling as a real text and actually sends the reply.
 
 ## Time estimates
 

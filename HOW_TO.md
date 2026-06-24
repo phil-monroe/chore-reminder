@@ -59,8 +59,12 @@ A household member can reply directly to a reminder text — no login needed:
 | `SNOOZE for <N> hours` | Pauses reminders for N hours, e.g. `SNOOZE for 3 hours` |
 | `SNOOZE until <N>am` / `<N>pm` | Pauses reminders until a specific time, e.g. `SNOOZE until 4pm` |
 | `UNSNOOZE` | Cancels an active snooze |
+| `REMIND me in <N> hours` | Sends a one-time reminder text in N hours, e.g. `REMIND me in 3 hours` |
+| `REMIND me at <N>am` / `<N>pm` | Sends a one-time reminder text at a specific time, e.g. `REMIND me at 4pm` |
 
 Replies are case-insensitive. An unrecognized reply gets a short list of valid commands.
+
+A one-time `REMIND` doesn't change the recurring daily reminder schedule, and unlike a regular scheduled reminder, it isn't paused by an active `SNOOZE` — it fires at the requested time regardless. It sends whatever task is currently next on the list at that time, the same as a normal reminder text.
 
 ## Simulate a text reply from the web UI
 

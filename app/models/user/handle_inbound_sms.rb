@@ -1,7 +1,8 @@
 class User::HandleInboundSms
-  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, ADD <task name>, SNOOZE (until tomorrow / for <N> hours / until <N>am|pm), or UNSNOOZE.".freeze
+  HELP_TEXT = "Reply DONE, SKIP, NEXT, LIST, ADD <task name>, SNOOZE (until tomorrow / for <N> hours / until <N>am|pm), UNSNOOZE, or REMIND me (in <N> hours / at <N>am|pm).".freeze
   MAX_LIST_SIZE = 20
   SNOOZE_USAGE = "Sorry, I didn't understand that. Try \"SNOOZE until tomorrow\", \"SNOOZE for 2 hours\", or \"SNOOZE until 4pm\".".freeze
+  REMIND_USAGE = "Sorry, I didn't understand that. Try \"REMIND me in 2 hours\" or \"REMIND me at 4pm\".".freeze
 
   def initialize(user:, body:, deliver_reply: false, sender: nil)
     @user = user
@@ -48,6 +49,7 @@ class User::HandleInboundSms
     when /\Asnooze\s+(.+)\z/i then snooze($1)
     when /\Asnooze\z/i then SNOOZE_USAGE
     when /\Aunsnooze\z/i then unsnooze
+    when /\Aremind\s+(.+)\z/i then remind($1)
     else
       "Sorry, I didn't understand that. #{HELP_TEXT}"
     end
@@ -127,6 +129,27 @@ class User::HandleInboundSms
 
     @user.update!(snoozed_until: nil)
     "Reminders un-snoozed."
+  end
+
+  # Schedules a one-time reminder (OneTimeReminder/OneTimeReminderDispatchJob)
+  # rather than touching ReminderDefinition - this is a single ad-hoc nudge,
+  # not a change to the recurring daily schedule, and keeping the two
+  # concepts separate means neither has to account for the other's lifecycle
+  # (advancing vs. firing once and disappearing).
+  def remind(args)
+    case args.strip
+    when /\A(?:me\s+)?in\s+(\d+)\s*hours?\z/i
+      schedule_one_time_reminder(Time.current + $1.to_i.hours)
+    when /\A(?:me\s+)?at\s+(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?\z/i
+      schedule_one_time_reminder(next_occurrence_of(hour: $1.to_i, minute: $2.to_i, meridiem: $3))
+    else
+      REMIND_USAGE
+    end
+  end
+
+  def schedule_one_time_reminder(time)
+    @user.one_time_reminders.create!(send_at: time)
+    "Reminder set for #{I18n.l(time.in_time_zone(@user.time_zone_object), format: :short_with_time)}."
   end
 
   def tomorrow_5am
