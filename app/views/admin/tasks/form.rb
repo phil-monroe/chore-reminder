@@ -21,6 +21,11 @@ class Views::Admin::Tasks::Form < Views::Base
           class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
       end
 
+      div do
+        f.label :time_estimate_minutes, "Time estimate (minutes, optional)", class: "block text-sm font-medium text-gray-700"
+        f.number_field :time_estimate_minutes, min: 1, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+      end
+
       div(class: "flex items-center gap-3") do
         f.submit class: "bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
         link_to "Cancel", admin_user_tasks_path(@user), class: "text-sm text-gray-600 hover:underline"

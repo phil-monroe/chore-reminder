@@ -16,7 +16,7 @@ Each person can have one or more scheduled reminder times per day. At each sched
 
 ## Recurring tasks
 
-Instead of adding the same chore by hand every week, a caregiver can define a recurring task definition: a name, an optional Markdown description, optional photos, a time of day, and which days of the week it recurs on. The app generates a fresh task automatically on each scheduled day — but only if the previous instance has already been completed, so an unfinished chore never gets duplicated.
+Instead of adding the same chore by hand every week, a caregiver can define a recurring task definition: a name, an optional Markdown description, optional photos, a time of day, an optional time estimate, and which days of the week it recurs on. The app generates a fresh task automatically on each scheduled day — but only if the previous instance has already been completed, so an unfinished chore never gets duplicated.
 
 ## Reply by text
 
@@ -46,9 +46,13 @@ A caregiver can connect Claude (the AI assistant) directly to their household's 
 
 The admin area has a chat-style view of every text exchanged with a household member, oldest first, so a caregiver can see exactly what was sent and what they replied. A caregiver can also simulate a text reply from this view — useful when standing next to the person rather than texting them — which runs the same DONE/SKIP/NEXT/LIST/ADD/SNOOZE handling as a real text and actually sends the reply.
 
+## Time estimates
+
+A one-off task or recurring task definition can have an optional time estimate, so a household member knows how long something is expected to take before they start it. The estimate shows up alongside the task name everywhere it appears — in reminder texts, text-reply confirmations, and list replies.
+
 ## Custom message wording
 
-Each person has their own message template (using [Liquid](https://shopify.github.io/liquid/) syntax) controlling exactly how their reminder texts are worded, with the task name and (when available) a link to the task's public page available as template variables.
+Each person has their own message template (using [Liquid](https://shopify.github.io/liquid/) syntax) controlling exactly how their reminder texts are worded, with the task name, its time estimate (when set), and a link to the task's public page (when available) all available as template variables.
 
 ## Per-person time zone
 

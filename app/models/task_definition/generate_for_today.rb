@@ -15,7 +15,7 @@ class TaskDefinition::GenerateForToday
 
     user = @task_definition.user
     previous_next_task_id = Task.next_for(user)&.id
-    task = @task_definition.tasks.create!(name: @task_definition.name, user: user, done: false)
+    task = @task_definition.tasks.create!(name: @task_definition.name, user: user, done: false, time_estimate_minutes: @task_definition.time_estimate_minutes)
     NotifyNextTaskChangedJob.perform_later(user.id, previous_next_task_id)
     task
   end

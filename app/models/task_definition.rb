@@ -1,4 +1,6 @@
 class TaskDefinition < ApplicationRecord
+  include HasTimeEstimate
+
   belongs_to :user
   has_many :tasks, dependent: :nullify
   has_many_attached :images do |attachable|

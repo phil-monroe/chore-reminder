@@ -88,7 +88,7 @@ class Admin::TasksController < Admin::BaseController
   end
 
   def task_params
-    params.require(:task).permit(:name, :task_definition_id)
+    params.require(:task).permit(:name, :task_definition_id, :time_estimate_minutes)
   end
 
   def respond_to_task_list_change

@@ -47,6 +47,68 @@ class TaskTest < ActiveSupport::TestCase
     assert_includes body, "http://"
   end
 
+  test "reminder_body renders the time estimate when set" do
+    task = tasks(:one)
+    task.time_estimate_minutes = 15
+
+    body = task.reminder_body("{{ task_name }}{% if time_estimate %} ({{ time_estimate }}){% endif %}")
+
+    assert_equal "#{task.name} (15 min)", body
+  end
+
+  test "reminder_body renders cleanly with no time estimate" do
+    task = tasks(:one)
+    task.time_estimate_minutes = nil
+
+    body = task.reminder_body("{{ task_name }}{% if time_estimate %} ({{ time_estimate }}){% endif %}")
+
+    assert_equal task.name, body
+  end
+
+  test "time_estimate_label is nil with no time estimate" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one))
+
+    assert_nil task.time_estimate_label
+  end
+
+  test "time_estimate_label formats minutes under an hour" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one), time_estimate_minutes: 15)
+
+    assert_equal "15 min", task.time_estimate_label
+  end
+
+  test "time_estimate_label formats whole hours" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one), time_estimate_minutes: 120)
+
+    assert_equal "2 hr", task.time_estimate_label
+  end
+
+  test "time_estimate_label formats hours and minutes" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one), time_estimate_minutes: 90)
+
+    assert_equal "1 hr 30 min", task.time_estimate_label
+  end
+
+  test "name_with_time_estimate appends the label in parentheses when set" do
+    task = Task.new(name: "Feed the pets", user: users(:one), time_estimate_minutes: 15)
+
+    assert_equal "Feed the pets (15 min)", task.name_with_time_estimate
+  end
+
+  test "name_with_time_estimate is just the name with no time estimate" do
+    task = Task.new(name: "Feed the pets", user: users(:one))
+
+    assert_equal "Feed the pets", task.name_with_time_estimate
+  end
+
+  test "invalid with a zero or negative time estimate" do
+    task = Task.new(name: "Ad-hoc task", user: users(:one), time_estimate_minutes: 0)
+    assert_not task.valid?
+
+    task.time_estimate_minutes = -5
+    assert_not task.valid?
+  end
+
   test "link_url is nil for an ad-hoc task with no task_definition" do
     task = Task.new(name: "Ad-hoc task", user: users(:one))
 

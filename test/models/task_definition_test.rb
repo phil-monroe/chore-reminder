@@ -17,6 +17,22 @@ class TaskDefinitionTest < ActiveSupport::TestCase
     assert_not td.valid?
   end
 
+  test "invalid with a zero or negative time estimate" do
+    td = task_definitions(:one)
+    td.time_estimate_minutes = 0
+    assert_not td.valid?
+
+    td.time_estimate_minutes = -5
+    assert_not td.valid?
+  end
+
+  test "time_estimate_label formats hours and minutes" do
+    td = task_definitions(:one)
+    td.time_estimate_minutes = 90
+
+    assert_equal "1 hr 30 min", td.time_estimate_label
+  end
+
   test "rendered_description converts markdown to html" do
     td = task_definitions(:one)
     td.description = "**bold** text"

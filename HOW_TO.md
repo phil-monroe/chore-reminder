@@ -17,7 +17,7 @@ From a household member's page, the **⋯** menu next to their name has links to
 ## Add a one-off task
 
 1. Open the household member's page — their incomplete tasks are listed right there.
-2. Click **New task** and give it a name.
+2. Click **New task** and give it a name. Optionally, set a time estimate (in minutes) so they know what to expect.
 3. It's added to the bottom of their list. Use the ↑/↓ buttons to reorder it if it needs to happen sooner.
 
 ## Set up a recurring task
@@ -26,7 +26,7 @@ Use this for chores that repeat on a schedule (e.g. "take out the trash every Mo
 
 1. From the household member's page, open the **⋯** menu and choose **Task Definitions**, then create a new one.
 2. Give it a name and, optionally, a Markdown description and photos — these show up on the task's public page, linked from the reminder text.
-3. Set a time of day and pick which days of the week it recurs on.
+3. Set a time of day, pick which days of the week it recurs on, and optionally a time estimate (in minutes) — carried over to each task it generates.
 4. Save. A matching task is generated automatically each day it's scheduled, but only if the previous instance has already been marked done — so an unfinished one is never duplicated.
 5. To generate today's task immediately (e.g. to test it) without waiting for the schedule, use **Generate now** on the task definition's page.
 
@@ -82,15 +82,16 @@ From a household member's page, open the **⋯** menu:
 
 ## Customize someone's reminder wording
 
-Each household member has a message template (in [Liquid](https://shopify.github.io/liquid/) syntax) controlling how their reminder texts read. Open the **⋯** menu on their page and choose **User Settings** to edit it. Two variables are available:
+Each household member has a message template (in [Liquid](https://shopify.github.io/liquid/) syntax) controlling how their reminder texts read. Open the **⋯** menu on their page and choose **User Settings** to edit it. Three variables are available:
 
 - `{{ task_name }}` — the name of their current task
+- `{{ time_estimate }}` — how long the task is expected to take, if a time estimate was set on it
 - `{{ link }}` — a link to the task's public page, if it has one (recurring tasks do; one-off tasks don't)
 
 The default template is:
 
 ```
-Up next: {{ task_name }}
+Up next: {{ task_name }}{% if time_estimate %} ({{ time_estimate }}){% endif %}
 {% if link %}{{ link }}{% endif %}
 ```
 

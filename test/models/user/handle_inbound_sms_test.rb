@@ -27,6 +27,16 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     assert_equal "Marked \"#{top.name}\" done.", reply
   end
 
+  test "DONE includes the task's time estimate in the reply when set" do
+    user = users(:one)
+    top = tasks(:one)
+    top.update!(time_estimate_minutes: 15)
+
+    reply = User::HandleInboundSms.new(user: user, body: "DONE").call
+
+    assert_equal "Marked \"#{top.name} (15 min)\" done.", reply
+  end
+
   test "DONE is case-insensitive and ignores surrounding whitespace" do
     user = users(:one)
 
@@ -62,6 +72,17 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     assert_equal "Skipped \"#{top.name}\".", reply
   end
 
+  test "SKIP includes the task's time estimate in the reply when set" do
+    user = users(:one)
+    top = tasks(:one)
+    top.update!(time_estimate_minutes: 30)
+    user.tasks.create!(name: "Walk the dog", position: top.position + 1)
+
+    reply = User::HandleInboundSms.new(user: user, body: "SKIP").call
+
+    assert_equal "Skipped \"#{top.name} (30 min)\".", reply
+  end
+
   test "NEXT lists up to 5 pending tasks in order without enqueuing a notification" do
     user = users(:one)
     tasks(:one).update!(name: "1st")
@@ -73,6 +94,15 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     end
 
     assert_equal "1. 1st\n2. 2th\n3. 3th\n4. 4th\n5. 5th", reply
+  end
+
+  test "NEXT includes each task's time estimate in the list when set" do
+    user = users(:one)
+    tasks(:one).update!(name: "1st", time_estimate_minutes: 10)
+
+    reply = User::HandleInboundSms.new(user: user, body: "NEXT").call
+
+    assert_equal "1. 1st (10 min)", reply
   end
 
   test "NEXT excludes done tasks" do
@@ -95,6 +125,15 @@ class User::HandleInboundSmsTest < ActiveSupport::TestCase
     end
 
     assert_equal "1. 1st\n2. 2th\n3. 3th\n4. 4th\n5. 5th\n6. 6th\n7. 7th", reply
+  end
+
+  test "LIST includes each task's time estimate when set" do
+    user = users(:one)
+    tasks(:one).update!(name: "1st", time_estimate_minutes: 45)
+
+    reply = User::HandleInboundSms.new(user: user, body: "LIST").call
+
+    assert_equal "1. 1st (45 min)", reply
   end
 
   test "LIST is case-insensitive and ignores surrounding whitespace" do

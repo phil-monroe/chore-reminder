@@ -59,7 +59,7 @@ class User::HandleInboundSms
 
     task.update!(done: true)
     notify_if_next_task_changed(previous_next_task_id: task.id)
-    "Marked \"#{task.name}\" done."
+    "Marked \"#{task.name_with_time_estimate}\" done."
   end
 
   def skip
@@ -68,7 +68,7 @@ class User::HandleInboundSms
 
     task.move_to_bottom
     notify_if_next_task_changed(previous_next_task_id: task.id)
-    "Skipped \"#{task.name}\"."
+    "Skipped \"#{task.name_with_time_estimate}\"."
   end
 
   # Kept deliberately separate from NEXT (top 5) rather than merged: NEXT is
@@ -79,14 +79,14 @@ class User::HandleInboundSms
     tasks = @user.tasks.pending.order(:position).limit(5)
     return "You don't have any pending tasks." if tasks.empty?
 
-    tasks.each_with_index.map { |task, index| "#{index + 1}. #{task.name}" }.join("\n")
+    tasks.each_with_index.map { |task, index| "#{index + 1}. #{task.name_with_time_estimate}" }.join("\n")
   end
 
   def list_all
     tasks = @user.tasks.pending.order(:position)
     return "You don't have any pending tasks." if tasks.empty?
 
-    lines = tasks.limit(MAX_LIST_SIZE).each_with_index.map { |task, index| "#{index + 1}. #{task.name}" }
+    lines = tasks.limit(MAX_LIST_SIZE).each_with_index.map { |task, index| "#{index + 1}. #{task.name_with_time_estimate}" }
     remaining = tasks.count - lines.size
     lines << "...and #{remaining} more." if remaining > 0
     lines.join("\n")

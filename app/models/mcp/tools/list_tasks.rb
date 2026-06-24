@@ -19,7 +19,7 @@ class Mcp::Tools::ListTasks < MCP::Tool
     user = resolve_user(user_id, server_context: server_context)
 
     tasks = done ? user.tasks.done.where(updated_at: 2.weeks.ago..).order(updated_at: :desc) : user.tasks.pending.order(:position)
-    tasks = tasks.map { |task| {id: task.id, name: task.name, done: task.done, position: task.position, task_definition_id: task.task_definition_id} }
+    tasks = tasks.map { |task| {id: task.id, name: task.name, done: task.done, position: task.position, task_definition_id: task.task_definition_id, time_estimate_minutes: task.time_estimate_minutes} }
 
     MCP::Tool::Response.new([{type: "text", text: tasks.to_json}], structured_content: {tasks: tasks})
   rescue ActiveRecord::RecordNotFound => e

@@ -38,6 +38,9 @@ class Views::Admin::Tasks::List < Components::Base
     div(class: "bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-3 #{"opacity-50" if task.done}") do
       div(class: "flex items-center gap-2") do
         span(class: task.done ? "line-through text-gray-400" : "text-gray-900") { task.name }
+        if task.time_estimate_label
+          span(class: "text-xs text-gray-400") { "(#{task.time_estimate_label})" }
+        end
         if task.task_definition
           link_to "(details)", admin_user_task_definition_path(@user, task.task_definition), class: "text-xs text-blue-600 hover:underline"
         end

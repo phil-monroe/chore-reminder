@@ -55,6 +55,6 @@ class Admin::TaskDefinitionsController < Admin::BaseController
   end
 
   def task_definition_params
-    params.require(:task_definition).permit(:name, :description, :time_of_day, recurrence_days: [], images: [])
+    params.require(:task_definition).permit(:name, :description, :time_of_day, :time_estimate_minutes, recurrence_days: [], images: [])
   end
 end

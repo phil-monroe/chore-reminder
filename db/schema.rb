@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_121352) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_24_145201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -177,6 +177,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_121352) do
     t.datetime "next_generate_at", null: false
     t.integer "recurrence_days", default: [], null: false, array: true
     t.string "slug"
+    t.integer "time_estimate_minutes"
     t.time "time_of_day", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -190,6 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_121352) do
     t.string "name", null: false
     t.integer "position"
     t.bigint "task_definition_id"
+    t.integer "time_estimate_minutes"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["task_definition_id"], name: "index_tasks_on_task_definition_id"
@@ -198,7 +200,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_121352) do
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "message_template", default: "Up next: {{ task_name }}\n{% if link %}{{ link }}{% endif %}", null: false
+    t.text "message_template", default: "Up next: {{ task_name }}{% if time_estimate %} ({{ time_estimate }}){% endif %}\n{% if link %}{{ link }}{% endif %}", null: false
     t.string "name", null: false
     t.string "phone_number", null: false
     t.datetime "snoozed_until"

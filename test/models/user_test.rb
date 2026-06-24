@@ -47,6 +47,18 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Up next: Sweep\n", rendered
   end
 
+  test "the column default message_template renders the time estimate when set" do
+    template = User.column_defaults.fetch("message_template")
+    rendered = Liquid::Template.parse(template).render("task_name" => "Sweep", "time_estimate" => "15 min", "link" => nil)
+    assert_equal "Up next: Sweep (15 min)\n", rendered
+  end
+
+  test "the column default message_template renders cleanly with no time estimate" do
+    template = User.column_defaults.fetch("message_template")
+    rendered = Liquid::Template.parse(template).render("task_name" => "Sweep", "time_estimate" => nil, "link" => nil)
+    assert_equal "Up next: Sweep\n", rendered
+  end
+
   test "invalid with a username containing uppercase or symbols" do
     user = User.new(name: "Sam", phone_number: "+15555550199", message_template: "{{ task_name }}", username: "Sam Jones!")
     assert_not user.valid?

@@ -37,6 +37,11 @@ class Views::Admin::TaskDefinitions::Form < Views::Base
       end
 
       div do
+        f.label :time_estimate_minutes, "Time estimate (minutes, optional)", class: "block text-sm font-medium text-gray-700"
+        f.number_field :time_estimate_minutes, min: 1, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+      end
+
+      div do
         f.label :images, "Images", class: "block text-sm font-medium text-gray-700"
         f.file_field :images, multiple: true, class: "mt-1 block w-full text-sm"
       end

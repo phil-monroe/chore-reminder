@@ -55,6 +55,19 @@ class SendReminderJobTest < ActiveJob::TestCase
     assert_equal "Up next: Water plants", fake_sender.calls.first[:body]
   end
 
+  test "sends the time estimate when the template references it and the task has one" do
+    reminder = reminder_definitions(:one)
+    user = reminder.user
+    user.update!(message_template: "Up next: {{ task_name }}{% if time_estimate %} ({{ time_estimate }}){% endif %}")
+    user.tasks.destroy_all
+    user.tasks.create!(name: "Water plants", time_estimate_minutes: 10)
+
+    fake_sender = FakeSender.new
+    with_sender(fake_sender) { SendReminderJob.perform_now(reminder.id) }
+
+    assert_equal "Up next: Water plants (10 min)", fake_sender.calls.first[:body]
+  end
+
   test "no-ops when the user has no pending tasks" do
     reminder = reminder_definitions(:one)
     reminder.user.tasks.destroy_all

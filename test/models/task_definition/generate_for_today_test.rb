@@ -48,6 +48,16 @@ class TaskDefinition::GenerateForTodayTest < ActiveSupport::TestCase
     end
   end
 
+  test "copies the time estimate onto the generated task" do
+    td = task_definitions(:one)
+    td.update!(recurrence_days: [Date.current.wday], time_estimate_minutes: 20)
+    td.tasks.destroy_all
+
+    task = TaskDefinition::GenerateForToday.new(task_definition: td).call
+
+    assert_equal 20, task.time_estimate_minutes
+  end
+
   test "enqueues a next-task notification when it creates a task" do
     td = task_definitions(:one)
     td.update!(recurrence_days: [Date.current.wday])

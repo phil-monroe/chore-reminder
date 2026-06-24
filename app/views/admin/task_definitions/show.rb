@@ -27,6 +27,12 @@ class Views::Admin::TaskDefinitions::Show < Views::Base
         span(class: "text-gray-500") { "Next check: " }
         plain l(@task_definition.next_generate_at, format: :short_with_time)
       }
+      if @task_definition.time_estimate_label
+        p {
+          span(class: "text-gray-500") { "Time estimate: " }
+          plain @task_definition.time_estimate_label
+        }
+      end
     end
 
     div(class: "bg-white border border-gray-200 rounded-lg p-4 mb-6 prose prose-sm max-w-none") do

@@ -14,7 +14,7 @@ class Mcp::Tools::ListTaskDefinitions < MCP::Tool
     user = resolve_user(user_id, server_context: server_context)
 
     definitions = user.task_definitions.map do |td|
-      {id: td.id, slug: td.slug, name: td.name, description: td.description, time_of_day: td.time_of_day.strftime("%H:%M"), recurrence_days: td.recurrence_days}
+      {id: td.id, slug: td.slug, name: td.name, description: td.description, time_of_day: td.time_of_day.strftime("%H:%M"), recurrence_days: td.recurrence_days, time_estimate_minutes: td.time_estimate_minutes}
     end
 
     MCP::Tool::Response.new([{type: "text", text: definitions.to_json}], structured_content: {task_definitions: definitions})

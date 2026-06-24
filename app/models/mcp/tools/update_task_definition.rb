@@ -10,17 +10,18 @@ class Mcp::Tools::UpdateTaskDefinition < MCP::Tool
       name: {type: "string"},
       description: {type: "string", description: "Markdown description shown on the task's public page."},
       time_of_day: {type: "string", description: "24-hour HH:MM, e.g. \"08:00\"."},
-      recurrence_days: {type: "array", items: {type: "integer", minimum: 0, maximum: 6}, description: "Days of week it generates on (0 = Sunday .. 6 = Saturday). Omit/empty for every day."}
+      recurrence_days: {type: "array", items: {type: "integer", minimum: 0, maximum: 6}, description: "Days of week it generates on (0 = Sunday .. 6 = Saturday). Omit/empty for every day."},
+      time_estimate_minutes: {type: "integer", description: "Optional - how long this task is expected to take, in minutes. Copied onto each generated task."}
     },
     required: ["task_definition_id"]
   )
   annotations(read_only_hint: false, destructive_hint: false, idempotent_hint: true, open_world_hint: false)
 
-  def self.call(task_definition_id:, server_context:, user_id: nil, name: nil, description: nil, time_of_day: nil, recurrence_days: nil)
+  def self.call(task_definition_id:, server_context:, user_id: nil, name: nil, description: nil, time_of_day: nil, recurrence_days: nil, time_estimate_minutes: nil)
     user = resolve_user(user_id, server_context: server_context)
     task_definition = user.task_definitions.find_by_param!(task_definition_id)
 
-    attributes = {name: name, description: description, time_of_day: time_of_day, recurrence_days: recurrence_days}.compact
+    attributes = {name: name, description: description, time_of_day: time_of_day, recurrence_days: recurrence_days, time_estimate_minutes: time_estimate_minutes}.compact
     if task_definition.update(attributes)
       MCP::Tool::Response.new([{type: "text", text: "Updated task definition \"#{task_definition.name}\"."}])
     else
