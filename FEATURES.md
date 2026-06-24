@@ -38,6 +38,10 @@ Whenever a change could affect what a person's next task is — completing, skip
 
 Every recurring task definition has its own simple, unauthenticated web page (linked from reminder texts) showing its name, Markdown-rendered description, and any photos — so a household member can tap the link in a text to see instructions or a reference photo without logging into anything.
 
+## Manage chores from the Claude app
+
+A caregiver can connect Claude (the AI assistant) directly to their household's chore list and manage it by just asking — viewing, completing, reordering, or deleting tasks, and creating or editing recurring tasks and reminder times for any household member, all without opening the web app. When connecting, the caregiver picks one household member as the default the connection acts as (handy for "what's on my list today?"-style questions), but it can still be asked to manage anyone in the household. Connected apps can be reviewed and disconnected at any time from the admin area.
+
 ## Conversation history
 
 The admin area has a chat-style view of every text exchanged with a household member, oldest first, so a caregiver can see exactly what was sent and what they replied. A caregiver can also simulate a text reply from this view — useful when standing next to the person rather than texting them — which runs the same DONE/SKIP/NEXT/LIST/ADD/SNOOZE handling as a real text and actually sends the reply.

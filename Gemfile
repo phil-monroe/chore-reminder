@@ -62,6 +62,10 @@ gem "liquid"
 # S3 Active Storage service
 gem "aws-sdk-s3", require: false
 
+# Official Ruby SDK for the Model Context Protocol - powers the admin MCP
+# server (app/controllers/mcp/server_controller.rb) [https://github.com/modelcontextprotocol/ruby-sdk]
+gem "mcp"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"

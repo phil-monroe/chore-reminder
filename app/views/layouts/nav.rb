@@ -29,6 +29,7 @@ class Views::Layouts::Nav < Components::Base
   def render_links
     if admin_authenticated?
       link_to "Dashboard", admin_root_path, class: LINK_CLASS
+      link_to "Connected apps", admin_oauth_clients_path, class: LINK_CLASS
     end
 
     link_to "Help", help_path, class: "#{LINK_CLASS} ml-auto"

@@ -1,0 +1,9 @@
+one:
+  client_id: test-client-one
+  client_name: Test Client One
+  redirect_uris: ["https://client-one.example.com/callback"]
+
+two:
+  client_id: test-client-two
+  client_name: Test Client Two
+  redirect_uris: ["https://client-two.example.com/callback"]

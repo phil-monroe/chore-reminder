@@ -98,6 +98,18 @@ Up next: {{ task_name }}
 
 Recurring task definitions get a public, no-login page at a URL like `/<username>/<task-slug>`, automatically linked from reminder texts for that task. It shows the task's name, Markdown description, and any photos.
 
+## Connect Claude to manage chores
+
+1. In the Claude app, add Chore Reminder as a connector, pointing it at this app's address.
+2. Claude will open this app's login page if you're not already signed in - log in with the shared caregiver password.
+3. Choose which household member this connection should act as by default (e.g. yourself, or the household member you'll be asking about most), then continue. You can still ask Claude to manage any household member - this just sets who it assumes when you don't say.
+4. You're connected. Try asking Claude things like "what's on my list today?", "mark take out the trash done", or "add a recurring task for watering the plants every Monday at 9am".
+
+## Disconnect a connected app
+
+1. Open the **Connected apps** link in the admin navigation.
+2. Find the app (e.g. Claude) and click **Disconnect**. This immediately revokes its access - it can no longer view or change anything until reconnected.
+
 ## Check on background job activity
 
 The job runner that sends scheduled reminders and generates recurring tasks has its own dashboard at `/admin/good_job`, behind the same caregiver login as the rest of the admin area. Use it to see recent and upcoming job runs, or to investigate a failed send.

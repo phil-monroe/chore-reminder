@@ -29,6 +29,27 @@ Rails.application.routes.draw do
   # session credentials; authenticated instead via Twilio's request signature.
   post "integrations/twilio/sms_inbound_webhook", to: "integrations/twilio#sms_inbound_webhook", as: :twilio_sms_inbound_webhook
 
+  # OAuth 2.1 + Dynamic Client Registration (RFC 7591) for the MCP server
+  # below, plus its discovery metadata (RFC 8414 / RFC 9728). See CLAUDE.md
+  # "MCP server" - hand-rolled rather than Doorkeeper since this app has no
+  # per-user accounts for a resource-owner model and Doorkeeper has no DCR
+  # support. /oauth/authorize is the only one of these that requires the
+  # existing admin session (enforced in Oauth::AuthorizationsController
+  # itself, redirecting to /login and back, rather than via
+  # AdminSessionConstraint - it isn't under /admin and registration/token/
+  # discovery must stay reachable with no session at all).
+  post "oauth/register", to: "oauth/clients#create", as: :oauth_register
+  get "oauth/authorize", to: "oauth/authorizations#new", as: :oauth_authorize
+  post "oauth/authorize", to: "oauth/authorizations#create"
+  post "oauth/token", to: "oauth/tokens#create", as: :oauth_token
+  get "/.well-known/oauth-authorization-server", to: "well_known#oauth_authorization_server", as: :oauth_authorization_server_metadata
+  get "/.well-known/oauth-protected-resource", to: "well_known#oauth_protected_resource", as: :oauth_protected_resource_metadata
+
+  # The MCP server itself (see CLAUDE.md "MCP server"). Authenticated by a
+  # Bearer access token from the OAuth flow above rather than the admin
+  # session, so - like the Twilio webhook - it's outside /admin entirely.
+  match "/mcp", to: "mcp/server#endpoint", via: [:get, :post, :delete], as: :mcp
+
   # Everything here is the caregiver-facing admin area. Every Admin::
   # controller already inherits from Admin::BaseController, whose
   # before_action gates it behind an authenticated session (see CLAUDE.md
@@ -46,6 +67,12 @@ Rails.application.routes.draw do
       root "dashboard#index"
 
       mount GoodJob::Engine, at: "good_job"
+
+      # Lets the caregiver revoke an app connected via the MCP OAuth flow
+      # (see CLAUDE.md "MCP server") - deleting a row here is the only
+      # revocation mechanism, since access/refresh tokens are
+      # self-contained signed payloads with no database row of their own.
+      resources :oauth_clients, only: %i[index destroy]
 
       resources :users do
         resources :tasks do
