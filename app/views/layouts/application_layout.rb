@@ -40,6 +40,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
         link_to "Chore Reminder", admin_root_path, class: "font-semibold text-gray-900"
         link_to "Dashboard", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900"
         link_to "Users", admin_users_path, class: "text-sm text-gray-600 hover:text-gray-900"
+        link_to "Help", help_path, class: "text-sm text-gray-600 hover:text-gray-900 ml-auto"
       end
     end
   end

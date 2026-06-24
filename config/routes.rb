@@ -9,10 +9,13 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Convenience redirect: every authenticated admin route lives under
-  # /admin (see below), so bookmarks/typing the bare host would otherwise
-  # 404 now that there's no top-level root.
-  root to: redirect("/admin")
+  # Unauthenticated marketing/help pages (PagesController) - "/" is a
+  # high-level features overview, "/help" a how-to knowledge base. Both
+  # render FEATURES.md/HOW_TO.md from the repo root. Logging into the
+  # admin area itself is still reached via the "Login" link these pages
+  # render, which hits /admin and triggers the browser's Basic Auth prompt.
+  root to: "pages#home"
+  get "help", to: "pages#help", as: :help
 
   # Excluded from the site-wide Basic Auth middleware (see
   # app/middleware/basic_auth_skip_health_check.rb) since Twilio can't supply
