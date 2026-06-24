@@ -1,4 +1,4 @@
-class Admin::TaskDefinitionsController < ApplicationController
+class Admin::TaskDefinitionsController < Admin::BaseController
   include ControllerWithUser
 
   before_action :set_task_definition, only: %i[show edit update destroy generate_now]

@@ -1,4 +1,4 @@
-class Admin::UsersController < ApplicationController
+class Admin::UsersController < Admin::BaseController
   before_action :set_user, only: %i[show edit update destroy new_message send_message send_welcome_message conversation send_inbound_message]
   around_action :with_time_zone, only: %i[conversation send_inbound_message]
 

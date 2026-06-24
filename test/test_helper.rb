@@ -1,8 +1,9 @@
 ENV["RAILS_ENV"] ||= "test"
 
-# Fixed password for the site-wide admin session gate (config/initializers/admin_auth.rb).
-# dotenv-rails is deliberately not loaded in :test (see CLAUDE.md), so this
-# must be set explicitly rather than relying on a developer's local .env.
+# Fixed password for the admin area (Admin::BaseController#require_authenticated!,
+# config/routes.rb's AdminSessionConstraint). dotenv-rails is deliberately
+# not loaded in :test (see CLAUDE.md), so this must be set explicitly rather
+# than relying on a developer's local .env.
 ENV["ADMIN_PASSWORD"] ||= "test"
 
 # Fixed token for verifying the Twilio inbound SMS webhook's request
@@ -22,8 +23,8 @@ require "rails/test_help"
 # `super` with nothing to call.
 module LogsInBeforeFirstRequest
   def process(method, path, **args)
-    unless @admin_session_gate_logged_in
-      @admin_session_gate_logged_in = true
+    unless @logged_in_for_test
+      @logged_in_for_test = true
       post "/login", params: {password: ENV.fetch("ADMIN_PASSWORD")}
     end
     super
