@@ -30,58 +30,60 @@ Rails.application.routes.draw do
   post "integrations/twilio/sms_inbound_webhook", to: "integrations/twilio#sms_inbound_webhook", as: :twilio_sms_inbound_webhook
 
   # Everything here is the caregiver-facing admin area. Every Admin::
-  # controller inherits from Admin::BaseController, whose before_action
-  # gates it behind an authenticated session (see CLAUDE.md "Authentication").
-  # Namespaced under /admin so it's cleanly separated from the public,
-  # unauthenticated routes below (the health check, the login page, the
-  # Twilio webhook, and the per-task public page).
-  namespace :admin do
-    root "dashboard#index"
+  # controller already inherits from Admin::BaseController, whose
+  # before_action gates it behind an authenticated session (see CLAUDE.md
+  # "Authentication") - but the whole namespace is also wrapped in this
+  # routing constraint (see AdminSessionConstraint) so the gate applies
+  # uniformly at the routing layer regardless of what ends up handling a
+  # given path, the same way GoodJob's mounted engine needs it (its
+  # controllers don't inherit from Admin::BaseController, or even
+  # ApplicationController, so a before_action can't reach them). Namespaced
+  # under /admin so it's cleanly separated from the public, unauthenticated
+  # routes below (the health check, the login page, the Twilio webhook, and
+  # the per-task public page).
+  constraints(AdminSessionConstraint.new) do
+    namespace :admin do
+      root "dashboard#index"
 
-    # GoodJob's engine controllers don't inherit from Admin::BaseController
-    # (or even ApplicationController), so a before_action can't gate them -
-    # this routing constraint checks the same session flag at the routing
-    # layer instead (see AdminSessionConstraint). A failed constraint just
-    # 404s rather than redirecting, hence the catch-all redirect below.
-    mount GoodJob::Engine, at: "good_job", constraints: AdminSessionConstraint.new
+      mount GoodJob::Engine, at: "good_job"
 
-    resources :users do
-      resources :tasks do
-        member do
-          patch :move_higher
-          patch :move_lower
-          patch :toggle_done
+      resources :users do
+        resources :tasks do
+          member do
+            patch :move_higher
+            patch :move_lower
+            patch :toggle_done
+          end
         end
-      end
 
-      resources :task_definitions do
-        member do
-          post :generate_now
+        resources :task_definitions do
+          member do
+            post :generate_now
+          end
         end
-      end
 
-      resources :reminder_definitions do
-        member do
-          post :send_now
+        resources :reminder_definitions do
+          member do
+            post :send_now
+          end
         end
-      end
 
-      member do
-        get :new_message
-        post :send_message
-        post :send_welcome_message
-        get :conversation
-        post :send_inbound_message
+        member do
+          get :new_message
+          post :send_message
+          post :send_welcome_message
+          get :conversation
+          post :send_inbound_message
+        end
       end
     end
   end
 
   # AdminSessionConstraint above just fails to match for an unauthenticated
   # visitor, which alone would 404 (no other route matches) rather than send
-  # them to the login page like every other unauthenticated /admin/... request
-  # gets via Admin::BaseController. This catches that case for GoodJob's
-  # mounted engine specifically.
-  match "/admin/good_job(/*path)", to: redirect("/login"), via: :all
+  # them to the login page. This catches that for every /admin/... path in
+  # one place, rather than enumerating each route that needs it.
+  match "/admin(/*path)", to: redirect("/login"), via: :all
 
   # The unauthenticated page linked from reminder texts (see Task#link_url) -
   # household members tap this from their phone with no session
