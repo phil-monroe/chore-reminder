@@ -2,6 +2,8 @@
 
 Self-hosted Rails app: a caregiver maintains an ordered chore list per household member and the app texts the next pending chore on a schedule via Twilio. It's meant to run on a home server for a single household, gated by a single shared username/password (HTTP Basic Auth) rather than per-user accounts.
 
+See [FEATURES.md](FEATURES.md) for what the app does and [HOW_TO.md](HOW_TO.md) for how to use it day-to-day — both are also published in the running app itself, at `/` and `/help`.
+
 ## Stack
 
 - Rails 8, PostgreSQL
