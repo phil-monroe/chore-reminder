@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Base < Phlex::HTML
+  extend Phlex::Rails::HelperMacros
+
   # Include any helpers you want to be available across all components
   include Phlex::Rails::Helpers::Routes
   include Phlex::Rails::Helpers::LinkTo
@@ -17,6 +19,10 @@ class Components::Base < Phlex::HTML
   include Phlex::Rails::Helpers::URLFor
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::TimeFieldTag
+
+  # Backs Views::Layouts::Nav's auth-dependent rendering (see
+  # ApplicationController#admin_authenticated?).
+  register_value_helper def admin_authenticated?(...) = nil
 
   if Rails.env.development?
     def before_template

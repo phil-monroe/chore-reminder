@@ -31,9 +31,9 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
   end
 
-  test "DELETE /logout clears the session and redirects to login" do
+  test "DELETE /logout clears the session and redirects to the root page" do
     delete logout_path
 
-    assert_redirected_to login_path
+    assert_redirected_to root_path
   end
 end
