@@ -40,7 +40,7 @@ Every recurring task definition has its own simple, unauthenticated web page (li
 
 ## Manage chores from the Claude app
 
-A caregiver can connect Claude (the AI assistant) directly to their household's chore list and manage it by just asking — viewing, completing, reordering, or deleting tasks, and creating or editing recurring tasks and reminder times for any household member, all without opening the web app. When connecting, the caregiver picks one household member as the default the connection acts as (handy for "what's on my list today?"-style questions), but it can still be asked to manage anyone in the household. Connected apps can be reviewed and disconnected at any time from the admin area.
+A caregiver can connect Claude (the AI assistant) directly to their household's chore list and manage it by just asking — viewing, adding, completing, reordering, or deleting tasks, and creating or editing recurring tasks and reminder times for any household member, all without opening the web app. When connecting, the caregiver picks one household member as the default the connection acts as (handy for "what's on my list today?"-style questions), but it can still be asked to manage anyone in the household. Connected apps can be reviewed and disconnected at any time from the admin area.
 
 ## Conversation history
 

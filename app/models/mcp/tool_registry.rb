@@ -7,6 +7,7 @@ module Mcp::ToolRegistry
     [
       Mcp::Tools::ListUsers,
       Mcp::Tools::ListTasks,
+      Mcp::Tools::CreateTask,
       Mcp::Tools::ToggleTask,
       Mcp::Tools::MoveTask,
       Mcp::Tools::DeleteTask,

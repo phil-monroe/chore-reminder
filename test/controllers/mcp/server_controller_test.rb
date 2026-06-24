@@ -58,7 +58,7 @@ class Mcp::ServerControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "tools/list returns all 13 registered tools" do
+  test "tools/list returns all 14 registered tools" do
     result = rpc_result({jsonrpc: "2.0", id: 1, method: "tools/list"})
 
     assert_equal Mcp::ToolRegistry.all.size, result["tools"].size
@@ -86,6 +86,18 @@ class Mcp::ServerControllerTest < ActionDispatch::IntegrationTest
 
     task_names = JSON.parse(result["content"].first["text"]).pluck("name")
     assert_equal other_user.tasks.pending.pluck(:name), task_names
+  end
+
+  test "tools/call create_task adds a one-off task for the token's user and enqueues the next-task notification" do
+    assert_enqueued_with(job: NotifyNextTaskChangedJob) do
+      assert_difference -> { @user.tasks.count }, 1 do
+        result = rpc_result({jsonrpc: "2.0", id: 1, method: "tools/call", params: {name: "create_task", arguments: {name: "Water plants"}}})
+
+        assert_not result["isError"]
+      end
+    end
+
+    assert_equal "Water plants", @user.tasks.order(:created_at).last.name
   end
 
   test "tools/call toggle_task marks the task done and enqueues the next-task notification" do
