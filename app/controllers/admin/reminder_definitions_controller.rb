@@ -1,4 +1,4 @@
-class Admin::ReminderDefinitionsController < ApplicationController
+class Admin::ReminderDefinitionsController < Admin::BaseController
   include ControllerWithUser
 
   before_action :set_reminder_definition, only: %i[show edit update destroy send_now]

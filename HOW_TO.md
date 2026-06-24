@@ -2,7 +2,7 @@
 
 A task-by-task guide to using Chore Reminder as a caregiver. See [FEATURES.md](FEATURES.md) for a higher-level overview of what the app does.
 
-Everything below except "Reply to a reminder by text" happens in the admin area, reached by opening the app and logging in with the shared caregiver username/password.
+Everything below except "Reply to a reminder by text" happens in the admin area, reached by opening the app and logging in with the shared caregiver password.
 
 ## Add a household member
 

@@ -52,7 +52,7 @@ A caregiver can send an arbitrary one-off text to a household member (e.g. a hea
 
 ## Single shared login
 
-There are no individual accounts. The entire admin area is gated by one shared HTTP Basic Auth username and password for the caregiver(s) managing the household. Reminder texts, their linked public task pages, and this help/features site all require no login at all.
+There are no individual accounts. The entire admin area is gated by one shared password for the caregiver(s) managing the household, entered on a simple login page. Reminder texts, their linked public task pages, and this help/features site all require no login at all.
 
 ## Self-hosted, single container
 

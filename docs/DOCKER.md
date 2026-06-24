@@ -7,7 +7,7 @@ Chore Reminder ships as a single standalone production image — [`philmonroe/ch
 ```
 docker run -d -p 80:80 \
   -e SECRET_KEY_BASE=<output of: bin/rails secret> \
-  -e BASIC_AUTH_USERNAME=... -e BASIC_AUTH_PASSWORD=... \
+  -e ADMIN_PASSWORD=... \
   -e DATABASE_HOST=... -e DATABASE_USERNAME=... -e DATABASE_PASSWORD=... -e DATABASE_NAME=... \
   -e TWILIO_ACCOUNT_SID=... -e TWILIO_AUTH_TOKEN=... -e TWILIO_FROM_NUMBER=... \
   -e APP_HOST=... \
@@ -27,8 +27,7 @@ services:
       - "80:80"
     environment:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      BASIC_AUTH_USERNAME: ${BASIC_AUTH_USERNAME}
-      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       DATABASE_HOST: db
       DATABASE_USERNAME: ${DATABASE_USERNAME:-chore_reminder}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-password}
@@ -75,7 +74,7 @@ Solid Cache and Solid Cable use the same Postgres server, in databases named `#{
 | var | purpose |
 |---|---|
 | `SECRET_KEY_BASE` | required; generate with `bin/rails secret` |
-| `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` | required; shared credentials for the whole site |
+| `ADMIN_PASSWORD` | required; shared password for the whole site |
 | `DATABASE_HOST` / `DATABASE_PORT` / `DATABASE_USERNAME` / `DATABASE_PASSWORD` / `DATABASE_NAME` | Postgres connection |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM_NUMBER` | Twilio |
 | `APP_HOST` | comma-separated host(s) the server accepts requests for; the first is also used for absolute URLs in SMS links |
@@ -92,4 +91,4 @@ docker exec chore-reminder env | grep ^GIT_
 
 ## Image identification
 
-A running container exposes the `/up` health check route unauthenticated (it's excluded from the site's shared Basic Auth — see `CLAUDE.md`'s "Authentication" section), so it can be pointed at by uptime monitors or a Compose `healthcheck` without credentials.
+A running container exposes the `/up` health check route unauthenticated (it's excluded from the site's shared admin login — see `CLAUDE.md`'s "Authentication" section), so it can be pointed at by uptime monitors or a Compose `healthcheck` without credentials.

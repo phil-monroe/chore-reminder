@@ -1,10 +1,10 @@
 ENV["RAILS_ENV"] ||= "test"
 
-# Fixed credentials for the site-wide Basic Auth middleware (config/initializers/basic_auth.rb).
-# dotenv-rails is deliberately not loaded in :test (see CLAUDE.md), so these
-# must be set explicitly rather than relying on a developer's local .env.
-ENV["BASIC_AUTH_USERNAME"] ||= "test"
-ENV["BASIC_AUTH_PASSWORD"] ||= "test"
+# Fixed password for the admin area (Admin::BaseController#require_authenticated!,
+# config/routes.rb's AdminSessionConstraint). dotenv-rails is deliberately
+# not loaded in :test (see CLAUDE.md), so this must be set explicitly rather
+# than relying on a developer's local .env.
+ENV["ADMIN_PASSWORD"] ||= "test"
 
 # Fixed token for verifying the Twilio inbound SMS webhook's request
 # signature (Integrations::TwilioController). Same dotenv rationale as
@@ -14,23 +14,23 @@ ENV["TWILIO_AUTH_TOKEN"] ||= "test-twilio-auth-token"
 require_relative "../config/environment"
 require "rails/test_help"
 
-# Every integration test request needs valid Basic Auth credentials now that
-# the whole site is gated. Inject them automatically so individual tests
-# don't each have to set the header themselves. Prepended (not reopened)
-# because Session#process is defined directly on the class itself — reopening
-# it would replace the original method body rather than wrap it, leaving
+# Every integration test request needs an authenticated session now that
+# the whole admin area is gated. Logging in once per test (rather than
+# requiring every test to do it) keeps existing controller tests from each
+# needing their own login call. Prepended (not reopened) because
+# Session#process is defined directly on the class itself — reopening it
+# would replace the original method body rather than wrap it, leaving
 # `super` with nothing to call.
-module InjectsBasicAuthHeader
+module LogsInBeforeFirstRequest
   def process(method, path, **args)
-    args[:headers] ||= {}
-    args[:headers]["Authorization"] ||=
-      ActionController::HttpAuthentication::Basic.encode_credentials(
-        ENV.fetch("BASIC_AUTH_USERNAME"), ENV.fetch("BASIC_AUTH_PASSWORD")
-      )
+    unless @logged_in_for_test
+      @logged_in_for_test = true
+      post "/login", params: {password: ENV.fetch("ADMIN_PASSWORD")}
+    end
     super
   end
 end
-ActionDispatch::Integration::Session.prepend(InjectsBasicAuthHeader)
+ActionDispatch::Integration::Session.prepend(LogsInBeforeFirstRequest)
 
 module ActiveSupport
   class TestCase

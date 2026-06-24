@@ -1,4 +1,4 @@
-class Admin::TasksController < ApplicationController
+class Admin::TasksController < Admin::BaseController
   include ControllerWithUser
 
   before_action :set_task, only: %i[edit update destroy move_higher move_lower toggle_done]

@@ -26,14 +26,12 @@ class Views::Public::TaskDefinitionShow < Components::Base
 
   # A login link rather than the full admin nav (Dashboard/Users, see
   # Views::Layouts::ApplicationLayout) - those are dead ends for someone not
-  # yet authenticated. Tapping this hits /admin, which is gated by
-  # BasicAuthAdminGate, prompting the browser's native Basic Auth dialog;
-  # logging in there lands on the admin dashboard.
+  # yet authenticated.
   def render_header
     header(class: "bg-white border-b border-gray-200 px-4 py-3") do
       div(class: "max-w-md mx-auto flex items-center justify-between") do
         span(class: "font-semibold text-gray-900") { "Chore Reminder" }
-        link_to "Login", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900"
+        link_to "Login", login_path, class: "text-sm text-gray-600 hover:text-gray-900"
       end
     end
   end
