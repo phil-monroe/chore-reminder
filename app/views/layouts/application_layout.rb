@@ -41,6 +41,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
         link_to "Dashboard", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900"
         link_to "Users", admin_users_path, class: "text-sm text-gray-600 hover:text-gray-900"
         link_to "Help", help_path, class: "text-sm text-gray-600 hover:text-gray-900 ml-auto"
+        button_to "Logout", logout_path, method: :delete, class: "text-sm text-gray-600 hover:text-gray-900 bg-transparent border-none p-0 cursor-pointer"
       end
     end
   end

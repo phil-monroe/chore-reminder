@@ -1,10 +1,9 @@
 ENV["RAILS_ENV"] ||= "test"
 
-# Fixed credentials for the site-wide Basic Auth middleware (config/initializers/basic_auth.rb).
-# dotenv-rails is deliberately not loaded in :test (see CLAUDE.md), so these
+# Fixed password for the site-wide admin session gate (config/initializers/admin_auth.rb).
+# dotenv-rails is deliberately not loaded in :test (see CLAUDE.md), so this
 # must be set explicitly rather than relying on a developer's local .env.
-ENV["BASIC_AUTH_USERNAME"] ||= "test"
-ENV["BASIC_AUTH_PASSWORD"] ||= "test"
+ENV["ADMIN_PASSWORD"] ||= "test"
 
 # Fixed token for verifying the Twilio inbound SMS webhook's request
 # signature (Integrations::TwilioController). Same dotenv rationale as
@@ -14,23 +13,23 @@ ENV["TWILIO_AUTH_TOKEN"] ||= "test-twilio-auth-token"
 require_relative "../config/environment"
 require "rails/test_help"
 
-# Every integration test request needs valid Basic Auth credentials now that
-# the whole site is gated. Inject them automatically so individual tests
-# don't each have to set the header themselves. Prepended (not reopened)
-# because Session#process is defined directly on the class itself — reopening
-# it would replace the original method body rather than wrap it, leaving
+# Every integration test request needs an authenticated session now that
+# the whole admin area is gated. Logging in once per test (rather than
+# requiring every test to do it) keeps existing controller tests from each
+# needing their own login call. Prepended (not reopened) because
+# Session#process is defined directly on the class itself — reopening it
+# would replace the original method body rather than wrap it, leaving
 # `super` with nothing to call.
-module InjectsBasicAuthHeader
+module LogsInBeforeFirstRequest
   def process(method, path, **args)
-    args[:headers] ||= {}
-    args[:headers]["Authorization"] ||=
-      ActionController::HttpAuthentication::Basic.encode_credentials(
-        ENV.fetch("BASIC_AUTH_USERNAME"), ENV.fetch("BASIC_AUTH_PASSWORD")
-      )
+    unless @admin_session_gate_logged_in
+      @admin_session_gate_logged_in = true
+      post "/login", params: {password: ENV.fetch("ADMIN_PASSWORD")}
+    end
     super
   end
 end
-ActionDispatch::Integration::Session.prepend(InjectsBasicAuthHeader)
+ActionDispatch::Integration::Session.prepend(LogsInBeforeFirstRequest)
 
 module ActiveSupport
   class TestCase

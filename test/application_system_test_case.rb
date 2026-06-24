@@ -9,6 +9,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :cuprite
 
   setup do
-    page.driver.basic_authorize(ENV.fetch("BASIC_AUTH_USERNAME"), ENV.fetch("BASIC_AUTH_PASSWORD"))
+    visit login_path
+    fill_in "Password", with: ENV.fetch("ADMIN_PASSWORD")
+    click_button "Log in"
   end
 end

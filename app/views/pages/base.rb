@@ -25,7 +25,7 @@ class Views::Pages::Base < Components::Base
         span(class: "font-semibold text-gray-900") { "Chore Reminder" }
         link_to "Features", root_path, class: "text-sm text-gray-600 hover:text-gray-900"
         link_to "Help", help_path, class: "text-sm text-gray-600 hover:text-gray-900"
-        link_to "Login", admin_root_path, class: "text-sm text-gray-600 hover:text-gray-900 ml-auto"
+        link_to "Login", login_path, class: "text-sm text-gray-600 hover:text-gray-900 ml-auto"
       end
     end
   end
