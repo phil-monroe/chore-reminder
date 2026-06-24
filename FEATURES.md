@@ -4,7 +4,11 @@ Chore Reminder helps a caregiver keep a household member's chore list up to date
 
 ## Per-person chore lists
 
-Every household member is a `User` with their own ordered list of tasks. A caregiver adds tasks, reorders them (move up/down), and marks them done from the admin dashboard. The top pending task is always "what's next" for that person.
+Every household member is a `User` with their own ordered list of tasks. A caregiver adds tasks, reorders them (move up/down), and marks them done right from that person's page. The top pending task is always "what's next" for that person. Completed tasks remain visible too, grouped by the day they were finished (the last two weeks), so progress isn't lost once a task is checked off.
+
+## Progress at a glance
+
+Each household member's page shows how many tasks are still incomplete, how many were completed in the last 7 and 30 days, and how many have been completed in total — a quick snapshot of how things are going without digging through history.
 
 ## Text message reminders
 

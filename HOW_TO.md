@@ -2,11 +2,13 @@
 
 A task-by-task guide to using Chore Reminder as a caregiver. See [FEATURES.md](FEATURES.md) for a higher-level overview of what the app does.
 
-Everything below except "Reply to a reminder by text" happens in the admin area, reached by opening the app and logging in with the shared caregiver password.
+Everything below except "Reply to a reminder by text" happens in the admin area, reached by opening the app and logging in with the shared caregiver password. The dashboard is the home screen, listing every household member with their next task; open a household member's name to get to their own page.
+
+From a household member's page, the **⋯** menu next to their name has links to their task definitions, reminders, conversation history, message sending, completed tasks, and settings — most of the steps below start there. Each task row also has its own **⋯** menu, for editing or deleting that task.
 
 ## Add a household member
 
-1. From the dashboard, go to **Users** and click **Add one** (or **New user** on the users list).
+1. From the dashboard, click **Add user** below the list of household members (or **Add one** if there are no users yet).
 2. Fill in their name, phone number (in `+1XXXXXXXXXX` international format), and time zone.
 3. Optionally set a `username` — a friendly identifier used in their public task links instead of a numeric id. Lowercase letters, numbers, underscores, and hyphens only.
 4. Optionally adjust their message template — see "Customize someone's reminder wording" below. A sensible default is filled in for you.
@@ -14,15 +16,15 @@ Everything below except "Reply to a reminder by text" happens in the admin area,
 
 ## Add a one-off task
 
-1. Open the household member's page and go to their task list.
-2. Click to add a new task and give it a name.
-3. It's added to the bottom of their list. Use the up/down controls to reorder it if it needs to happen sooner.
+1. Open the household member's page — their incomplete tasks are listed right there.
+2. Click **New task** and give it a name.
+3. It's added to the bottom of their list. Use the ↑/↓ buttons to reorder it if it needs to happen sooner.
 
 ## Set up a recurring task
 
 Use this for chores that repeat on a schedule (e.g. "take out the trash every Monday and Thursday") instead of re-adding the same task by hand each time.
 
-1. From the household member's page, go to **Task definitions** and create a new one.
+1. From the household member's page, open the **⋯** menu and choose **Task Definitions**, then create a new one.
 2. Give it a name and, optionally, a Markdown description and photos — these show up on the task's public page, linked from the reminder text.
 3. Set a time of day and pick which days of the week it recurs on.
 4. Save. A matching task is generated automatically each day it's scheduled, but only if the previous instance has already been marked done — so an unfinished one is never duplicated.
@@ -30,14 +32,17 @@ Use this for chores that repeat on a schedule (e.g. "take out the trash every Mo
 
 ## Schedule reminder texts
 
-1. From the household member's page, go to **Reminder definitions** and create a new one.
+1. From the household member's page, open the **⋯** menu and choose **Reminders**, then create a new one.
 2. Set the time of day reminders should go out. You can add multiple reminder times per day by creating more than one.
 3. At each scheduled time, they'll be texted their current next pending task. If they have nothing pending, no text is sent.
 4. To send a reminder right away (e.g. to test it), use **Send now** on the reminder definition's page.
 
-## Reorder or complete tasks from the dashboard
+## Reorder or complete tasks
 
-On a household member's task list, use the up/down arrows to move a task, or the checkbox/button to mark it done. The dashboard's "next task" card updates immediately. Completed tasks can be viewed separately via the "done" filter on the task list.
+- On the dashboard, each household member's card shows their next task with a quick **Mark done** button.
+- On a household member's page, every incomplete task is listed with ↑/↓ buttons to reorder it, and a green checkmark button to mark it done. Once done, that button turns into a muted "undo" icon you can click to mark it incomplete again.
+- A household member's page also shows their incomplete task count and how many tasks they've completed in the last 7 and 30 days, and in total.
+- To review completed tasks, open the **⋯** menu next to the household member's name and choose **Completed Tasks** — they're grouped by the day they were finished, going back two weeks.
 
 ## Reply to a reminder by text
 
@@ -61,23 +66,23 @@ Replies are case-insensitive. An unrecognized reply gets a short list of valid c
 
 Useful when you're physically with the household member rather than texting them.
 
-1. Open the household member's page and go to **Conversation**.
+1. Open the household member's page, then open the **⋯** menu and choose **Conversation**.
 2. Use the form at the bottom to type what they would have said (e.g. `done`, `add take out recycling`).
 3. It's handled exactly like a real text reply, and the actual reply is sent back to them as a real text — so this isn't just a preview.
 
 ## View someone's text history
 
-Open the household member's page and go to **Conversation** to see every text exchanged with them, oldest first, with inbound replies and outbound texts visually distinguished.
+Open the household member's page, then open the **⋯** menu and choose **Conversation** to see every text exchanged with them, oldest first, with inbound replies and outbound texts visually distinguished.
 
 ## Send a one-off or welcome message
 
-From a household member's page:
-- **New message** sends an arbitrary one-off text, unrelated to any chore.
+From a household member's page, open the **⋯** menu:
+- **Send message** sends an arbitrary one-off text, unrelated to any chore.
 - **Send welcome message** sends a canned introductory text — useful the first time someone starts getting reminders.
 
 ## Customize someone's reminder wording
 
-Each household member has a message template (in [Liquid](https://shopify.github.io/liquid/) syntax) controlling how their reminder texts read. Edit it from their user form. Two variables are available:
+Each household member has a message template (in [Liquid](https://shopify.github.io/liquid/) syntax) controlling how their reminder texts read. Open the **⋯** menu on their page and choose **User Settings** to edit it. Two variables are available:
 
 - `{{ task_name }}` — the name of their current task
 - `{{ link }}` — a link to the task's public page, if it has one (recurring tasks do; one-off tasks don't)
