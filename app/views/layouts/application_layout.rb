@@ -15,7 +15,7 @@ class Views::Layouts::ApplicationLayout < Views::Base
   def render_build_info
     sha = ENV["GIT_SHA"]
 
-    div(class: "max-w-3xl mx-auto px-4 py-2 text-center") do
+    div(id: "build-info", class: "max-w-3xl mx-auto px-4 py-2 text-center") do
       if sha.blank?
         span(class: "text-xs text-gray-300 italic") { plain "dev build" }
       else

@@ -6,8 +6,8 @@ class BuildInfoFooterTest < ActionDispatch::IntegrationTest
       get admin_root_path
     end
 
-    assert_select "details > summary.text-gray-300", text: "abc1234 @ main"
-    assert_select "details > p.text-gray-400", text: "Add build info footer"
+    assert_select "#build-info details > summary.text-gray-300", text: "abc1234 @ main"
+    assert_select "#build-info details > p.text-gray-400", text: "Add build info footer"
   end
 
   test "shows a placeholder when GIT_SHA is not set (e.g. local dev)" do
@@ -16,7 +16,7 @@ class BuildInfoFooterTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "span.text-gray-300", text: "dev build"
-    assert_select "details", count: 0
+    assert_select "#build-info details", count: 0
   end
 
   test "falls back to a plain (non-tappable) span without a ref or message when only GIT_SHA is set" do
@@ -25,7 +25,7 @@ class BuildInfoFooterTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "span.text-gray-300", text: "abc1234"
-    assert_select "details", count: 0
+    assert_select "#build-info details", count: 0
   end
 
   private
