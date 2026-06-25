@@ -112,7 +112,7 @@ Recurring task definitions get a public, no-login page at a URL like `/<username
 
 ## Disconnect a connected app
 
-1. Open the **Connected apps** link in the admin navigation.
+1. Open **Settings** in the admin navigation, then **Connected apps**.
 2. Find the app (e.g. Claude) and click **Disconnect**. This immediately revokes its access - it can no longer view or change anything until reconnected.
 
 ## Check on background job activity

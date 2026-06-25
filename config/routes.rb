@@ -68,6 +68,11 @@ Rails.application.routes.draw do
 
       mount GoodJob::Engine, at: "good_job"
 
+      # Landing page for caregiver-facing configuration not tied to a
+      # specific household member - currently just links to "Connected
+      # apps" below, but expected to grow more settings over time.
+      get "settings", to: "settings#index", as: :settings
+
       # Lets the caregiver revoke an app connected via the MCP OAuth flow
       # (see CLAUDE.md "MCP server") - deleting a row here is the only
       # revocation mechanism, since access/refresh tokens are
